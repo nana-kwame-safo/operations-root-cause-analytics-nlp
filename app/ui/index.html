@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Operations RCA NLP</title>
+    <link rel="stylesheet" href="/ui/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="panel hero">
+        <div class="hero-top">
+          <div>
+            <h1>Operations RCA NLP</h1>
+            <p class="subtitle">
+              Natural language processing for incident narrative analysis and root cause
+              factor classification.
+            </p>
+          </div>
+          <div class="hero-badges">
+            <span class="badge badge-domain">Aviation Demonstration</span>
+            <span class="badge badge-version">Baseline v0.1.0</span>
+          </div>
+        </div>
+        <p class="disclaimer">
+          Decision-support prototype only: outputs are likely root-cause-related factor
+          indicators and require analyst review before operational use.
+        </p>
+      </header>
+
+      <section class="panel panel-scoring">
+        <div class="panel-header">
+          <h2>Single Narrative Scoring</h2>
+          <p class="muted">
+            Confidence-ranked contributory-factor indicators for analyst triage.
+          </p>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="control-grid">
+              <label class="field">
+                <span class="field-label">Domain</span>
+                <select id="domainSelect"></select>
+              </label>
+              <label class="field field-range">
+                <span class="field-label field-inline">
+                  Threshold
+                  <span id="thresholdValue" class="threshold-pill">0.50</span>
+                </span>
+                <input
+                  id="thresholdInput"
+                  type="range"
+                  min="0.1"
+                  max="0.9"
+                  step="0.01"
+                  value="0.5"
+                />
+              </label>
+              <label class="field">
+                <span class="field-label">Top-k</span>
+                <input id="topKInput" type="number" min="1" max="22" value="5" />
+              </label>
+            </div>
+
+            <label class="field block">
+              <span class="field-label">Incident narrative</span>
+              <textarea
+                id="narrativeInput"
+                rows="7"
+                placeholder="Paste an incident narrative for root-cause-related factor assessment..."
+              ></textarea>
+            </label>
+
+            <button id="predictBtn" class="btn btn-primary">
+              <span class="btn-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12h14M13 5l7 7-7 7"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+              <span>Predict Factors</span>
+            </button>
+          </div>
+          <aside class="side-note">
+            <h3>Analyst Guidance</h3>
+            <ul>
+              <li>Use confidence and review flags as triage support.</li>
+              <li>Low-confidence outputs should be manually reviewed.</li>
+              <li>Predictions are contributory-factor indicators, not causal proof.</li>
+            </ul>
+            <div class="note-chips">
+              <span class="note-chip">Human-in-the-loop</span>
+              <span class="note-chip">Confidence-aware</span>
+              <span class="note-chip">Batch-ready outputs</span>
+            </div>
+            <p class="muted">
+              Planned domains include maintenance work orders, asset failure logs,
+              service disruption reports, housing repair narratives, and safety
+              near-miss reports.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="panel panel-results">
+        <div class="panel-header panel-header-row">
+          <h2>Predicted Factor Indicators</h2>
+          <div class="stat-row">
+            <div class="stat-chip">
+              <span class="chip-key">Labels</span>
+              <span id="resultCount" class="chip-value">0</span>
+            </div>
+            <div class="stat-chip">
+              <span class="chip-key">Top Score</span>
+              <span id="topScore" class="chip-value">N/A</span>
+            </div>
+            <div id="reviewFlagChip" class="stat-chip chip-neutral">
+              <span class="chip-key">Review Flag</span>
+              <span id="reviewFlagValue" class="chip-value">N/A</span>
+            </div>
+          </div>
+        </div>
+        <div id="reviewBanner" class="banner hidden"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Confidence</th>
+                <th>Explanation Cues</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <tr>
+                <td colspan="3" class="empty-row">
+                  No prediction results yet. Enter a narrative and run scoring.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel panel-batch">
+        <div class="panel-header">
+          <h2>Batch CSV Scoring</h2>
+          <p class="muted">
+            Upload a CSV with a narrative text column (default: <code>text</code>) to
+            score multiple incident reports and export structured outputs.
+          </p>
+        </div>
+        <div class="control-grid">
+          <label class="field">
+            <span class="field-label">CSV file</span>
+            <input id="batchFile" type="file" accept=".csv" />
+          </label>
+          <label class="field">
+            <span class="field-label">Text column name</span>
+            <input id="textColumnInput" type="text" value="text" />
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="batchBtn" class="btn btn-primary">
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span>Run Batch Prediction</span>
+          </button>
+          <button id="downloadBtn" class="btn btn-secondary" disabled>
+            <span class="btn-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span>Download Results CSV</span>
+          </button>
+        </div>
+        <p id="batchStatus" class="status-line muted"></p>
+
+        <div class="stat-row batch-stat-row">
+          <div class="stat-chip">
+            <span class="chip-key">Rows</span>
+            <span id="batchRows" class="chip-value">0</span>
+          </div>
+          <div class="stat-chip">
+            <span class="chip-key">Avg Labels / Row</span>
+            <span id="batchAvgLabels" class="chip-value">0.00</span>
+          </div>
+          <div class="stat-chip">
+            <span class="chip-key">Review Flags</span>
+            <span id="batchReviewCount" class="chip-value">0</span>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Row Index</th>
+                <th>Predicted Labels</th>
+                <th>Scores</th>
+                <th>Review Flag</th>
+              </tr>
+            </thead>
+            <tbody id="batchResultsBody">
+              <tr>
+                <td colspan="4" class="empty-row">
+                  No batch results yet. Upload a CSV and run batch prediction.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel panel-model">
+        <h2>Model Information</h2>
+        <div id="modelInfo" class="info-grid"></div>
+      </section>
+
+      <section class="panel note panel-note">
+        <h2>Responsible Use</h2>
+        <p>
+          This is a decision-support prototype for human-in-the-loop analytics.
+          Outputs are contributory-factor signals and confidence-aware indicators,
+          not definitive causal findings.
+        </p>
+      </section>
+    </main>
+    <script src="/ui/app.js"></script>
+  </body>
+</html>

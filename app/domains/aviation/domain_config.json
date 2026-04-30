@@ -1,0 +1,19 @@
+{
+  "domain_id": "aviation",
+  "display_name": "Aviation Incident Report Analysis",
+  "status": "implemented",
+  "description": "Root-cause-related factor classification for aviation incident narratives.",
+  "artifact_subdir": "aviation",
+  "model_artifact": "model.joblib",
+  "metadata_file": "metadata.json",
+  "metadata_example_file": "metadata.example.json",
+  "label_mapping_file": "label_mapping.json",
+  "default_threshold": 0.5,
+  "default_top_k": 5,
+  "model_name": "TF-IDF + One-vs-Rest Logistic Regression",
+  "model_type": "multi-label classification",
+  "label_count": 22,
+  "dataset_provenance_note": "Local frozen NASA ASRS/SIAM 2007 benchmark snapshot used for aviation demonstration benchmarking.",
+  "limitation_note": "Outputs are likely root-cause-related factors for analyst decision support and do not establish definitive causality.",
+  "responsible_use_note": "Decision support only; requires human analyst review and must not be used as a certified operational safety decision system."
+}

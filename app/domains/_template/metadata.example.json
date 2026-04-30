@@ -1,0 +1,28 @@
+{
+  "domain_id": "maintenance_work_orders",
+  "domain": "maintenance_work_orders",
+  "model_name": "TF-IDF + One-vs-Rest Logistic Regression",
+  "model_type": "multi-label classification",
+  "training_approach": "TF-IDF vectorization with One-vs-Rest Logistic Regression",
+  "version": "maintenance-demo-v1",
+  "training_date": "YYYY-MM-DD",
+  "threshold": 0.5,
+  "threshold_default": 0.5,
+  "label_count": 0,
+  "labels": [],
+  "evaluation_metrics": {
+    "micro_f1": 0.0,
+    "macro_f1": 0.0,
+    "samples_f1": 0.0,
+    "hamming_loss": 0.0
+  },
+  "metrics": {
+    "micro_f1": 0.0,
+    "macro_f1": 0.0,
+    "samples_f1": 0.0,
+    "hamming_loss": 0.0
+  },
+  "dataset_provenance_note": "Local domain dataset snapshot managed outside git.",
+  "limitation_note": "Outputs are likely root-cause-related factor indicators for analyst review and not definitive causal findings.",
+  "responsible_use_note": "Decision support only; human review required before operational action."
+}

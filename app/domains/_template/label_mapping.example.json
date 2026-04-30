@@ -1,0 +1,10 @@
+{
+  "Factor_1": {
+    "display_name": "Factor 1",
+    "description": "Contributory-factor indicator used for analyst review."
+  },
+  "Factor_2": {
+    "display_name": "Factor 2",
+    "description": "Contributory-factor indicator used for analyst review."
+  }
+}

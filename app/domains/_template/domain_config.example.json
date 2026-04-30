@@ -1,0 +1,19 @@
+{
+  "domain_id": "maintenance_work_orders",
+  "display_name": "Maintenance Work Orders",
+  "status": "implemented",
+  "description": "Root-cause-related factor classification for maintenance work-order narratives.",
+  "artifact_subdir": "maintenance_work_orders",
+  "model_artifact": "model.joblib",
+  "metadata_file": "metadata.json",
+  "metadata_example_file": "metadata.example.json",
+  "label_mapping_file": "label_mapping.json",
+  "default_threshold": 0.5,
+  "default_top_k": 5,
+  "model_name": "TF-IDF + One-vs-Rest Logistic Regression",
+  "model_type": "multi-label classification",
+  "label_count": 0,
+  "dataset_provenance_note": "Local domain dataset snapshot managed outside git.",
+  "limitation_note": "Outputs are likely root-cause-related factor indicators for analyst review and not definitive causal findings.",
+  "responsible_use_note": "Decision support only; human review required before operational action."
+}

@@ -1,0 +1,51 @@
+{
+  "domain_id": "aviation",
+  "domain": "aviation",
+  "model_name": "TF-IDF + One-vs-Rest Logistic Regression",
+  "model_type": "multi-label classification",
+  "training_approach": "TF-IDF vectorization with One-vs-Rest Logistic Regression",
+  "version": "aviation-demo-v1",
+  "training_date": "YYYY-MM-DD",
+  "threshold": 0.5,
+  "threshold_default": 0.5,
+  "label_count": 22,
+  "labels": [
+    "Anomaly_1",
+    "Anomaly_2",
+    "Anomaly_3",
+    "Anomaly_4",
+    "Anomaly_5",
+    "Anomaly_6",
+    "Anomaly_7",
+    "Anomaly_8",
+    "Anomaly_9",
+    "Anomaly_10",
+    "Anomaly_11",
+    "Anomaly_12",
+    "Anomaly_13",
+    "Anomaly_14",
+    "Anomaly_15",
+    "Anomaly_16",
+    "Anomaly_17",
+    "Anomaly_18",
+    "Anomaly_19",
+    "Anomaly_20",
+    "Anomaly_21",
+    "Anomaly_22"
+  ],
+  "evaluation_metrics": {
+    "micro_f1": 0.658,
+    "macro_f1": 0.63,
+    "samples_f1": 0.654,
+    "hamming_loss": 0.073
+  },
+  "metrics": {
+    "micro_f1": 0.658,
+    "macro_f1": 0.63,
+    "samples_f1": 0.654,
+    "hamming_loss": 0.073
+  },
+  "dataset_provenance_note": "Local frozen NASA ASRS/SIAM 2007 benchmark snapshot used for aviation demonstration benchmarking.",
+  "limitation_note": "Outputs are likely root-cause-related factor indicators and not definitive causal findings.",
+  "responsible_use_note": "Decision support only; requires human analyst review and must not be used as a certified operational safety decision system."
+}

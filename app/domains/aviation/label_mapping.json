@@ -1,0 +1,90 @@
+{
+  "Anomaly_1": {
+    "display_name": "Anomaly 1",
+    "description": "Aviation incident anomaly-factor label 1."
+  },
+  "Anomaly_2": {
+    "display_name": "Anomaly 2",
+    "description": "Aviation incident anomaly-factor label 2."
+  },
+  "Anomaly_3": {
+    "display_name": "Anomaly 3",
+    "description": "Aviation incident anomaly-factor label 3."
+  },
+  "Anomaly_4": {
+    "display_name": "Anomaly 4",
+    "description": "Aviation incident anomaly-factor label 4."
+  },
+  "Anomaly_5": {
+    "display_name": "Anomaly 5",
+    "description": "Aviation incident anomaly-factor label 5."
+  },
+  "Anomaly_6": {
+    "display_name": "Anomaly 6",
+    "description": "Aviation incident anomaly-factor label 6."
+  },
+  "Anomaly_7": {
+    "display_name": "Anomaly 7",
+    "description": "Aviation incident anomaly-factor label 7."
+  },
+  "Anomaly_8": {
+    "display_name": "Anomaly 8",
+    "description": "Aviation incident anomaly-factor label 8."
+  },
+  "Anomaly_9": {
+    "display_name": "Anomaly 9",
+    "description": "Aviation incident anomaly-factor label 9."
+  },
+  "Anomaly_10": {
+    "display_name": "Anomaly 10",
+    "description": "Aviation incident anomaly-factor label 10."
+  },
+  "Anomaly_11": {
+    "display_name": "Anomaly 11",
+    "description": "Aviation incident anomaly-factor label 11."
+  },
+  "Anomaly_12": {
+    "display_name": "Anomaly 12",
+    "description": "Aviation incident anomaly-factor label 12."
+  },
+  "Anomaly_13": {
+    "display_name": "Anomaly 13",
+    "description": "Aviation incident anomaly-factor label 13."
+  },
+  "Anomaly_14": {
+    "display_name": "Anomaly 14",
+    "description": "Aviation incident anomaly-factor label 14."
+  },
+  "Anomaly_15": {
+    "display_name": "Anomaly 15",
+    "description": "Aviation incident anomaly-factor label 15."
+  },
+  "Anomaly_16": {
+    "display_name": "Anomaly 16",
+    "description": "Aviation incident anomaly-factor label 16."
+  },
+  "Anomaly_17": {
+    "display_name": "Anomaly 17",
+    "description": "Aviation incident anomaly-factor label 17."
+  },
+  "Anomaly_18": {
+    "display_name": "Anomaly 18",
+    "description": "Aviation incident anomaly-factor label 18."
+  },
+  "Anomaly_19": {
+    "display_name": "Anomaly 19",
+    "description": "Aviation incident anomaly-factor label 19."
+  },
+  "Anomaly_20": {
+    "display_name": "Anomaly 20",
+    "description": "Aviation incident anomaly-factor label 20."
+  },
+  "Anomaly_21": {
+    "display_name": "Anomaly 21",
+    "description": "Aviation incident anomaly-factor label 21."
+  },
+  "Anomaly_22": {
+    "display_name": "Anomaly 22",
+    "description": "Aviation incident anomaly-factor label 22."
+  }
+}
