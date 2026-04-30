@@ -9,6 +9,12 @@ Current release framing: text-based MVP now, multi-domain-ready architecture, mu
 Short name: **Operations RCA NLP**  
 Repository: **operations-root-cause-analytics-nlp**
 
+## Live Demo
+
+Try the live app here: [Operations RCA NLP Demo](PASTE_RENDER_URL_HERE)
+
+> This demo supports root-cause-related factor classification for analyst review. It does not establish definitive causality or replace expert investigation.
+
 ## Demo Preview
 
 ![App Home Screenshot](docs/images/app_home.png)
