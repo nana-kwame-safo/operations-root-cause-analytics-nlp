@@ -6,9 +6,15 @@ This file documents what each public visual shows, how it was produced, and how 
 
 | File | What it shows | Visual type | Current status |
 |---|---|---|---|
-| `docs/images/app_home.png` | Main analyst UI (home, controls, narrative input) | Real app screenshot | Release-ready |
-| `docs/images/prediction_result.png` | Predicted labels, confidence scores, explanation cues, review flag | Real app screenshot | Release-ready |
-| `docs/images/batch_scoring.png` | CSV upload workflow and structured batch output view | Real app screenshot | Release-ready |
+| `docs/images/app_home_dark.png` | Main analyst UI (home, controls, narrative input) in dark theme | Live UI screenshot | Release-ready |
+| `docs/images/app_home_light.png` | Main analyst UI (home, controls, narrative input) in light theme | Live UI screenshot | Release-ready |
+| `docs/images/prediction_result_dark.png` | Single-report prediction results in dark theme | Live UI screenshot | Release-ready |
+| `docs/images/prediction_result_light.png` | Single-report prediction results in light theme | Live UI screenshot | Release-ready |
+| `docs/images/batch_scoring_dark.png` | Batch CSV scoring workflow in dark theme | Live UI screenshot | Release-ready |
+| `docs/images/batch_scoring_light.png` | Batch CSV scoring workflow in light theme | Live UI screenshot | Release-ready |
+| `docs/images/app_home.png` | Previous home screenshot retained for compatibility | Live UI screenshot | Legacy snapshot |
+| `docs/images/prediction_result.png` | Previous prediction screenshot retained for compatibility | Live UI screenshot | Legacy snapshot |
+| `docs/images/batch_scoring.png` | Previous batch screenshot retained for compatibility | Live UI screenshot | Legacy snapshot |
 | `docs/images/architecture.png` | End-to-end project architecture (UI -> API -> services -> artifacts -> outputs) | Generated diagram | Release-ready |
 | `docs/images/model_workflow.png` | NLP inference workflow from narrative text to structured output | Generated diagram | Release-ready |
 | `docs/images/metrics_summary.png` | Aviation baseline metrics (Micro-F1, Macro-F1, Samples-F1, Hamming Loss) | Generated chart | Release-ready |
@@ -36,10 +42,15 @@ This regenerates:
    uvicorn app.main:app --reload
    ```
 2. Capture the required pages:
-   - `http://127.0.0.1:8000` -> `docs/images/app_home.png`
-   - `http://127.0.0.1:8000/?demo=prediction&view=prediction` -> `docs/images/prediction_result.png`
-   - `http://127.0.0.1:8000/?demo=batch&view=batch` -> `docs/images/batch_scoring.png`
-3. Use consistent dimensions (recommended width `1600px`) and crop only if readability improves.
+   - `http://127.0.0.1:8000/?theme=dark` -> `docs/images/app_home_dark.png`
+   - `http://127.0.0.1:8000/?theme=light` -> `docs/images/app_home_light.png`
+   - `http://127.0.0.1:8000/?demo=prediction&view=prediction&theme=dark` -> `docs/images/prediction_result_dark.png`
+   - `http://127.0.0.1:8000/?demo=prediction&view=prediction&theme=light` -> `docs/images/prediction_result_light.png`
+   - `http://127.0.0.1:8000/?demo=batch&view=batch&theme=dark` -> `docs/images/batch_scoring_dark.png`
+   - `http://127.0.0.1:8000/?demo=batch&view=batch&theme=light` -> `docs/images/batch_scoring_light.png`
+3. Optional compatibility refresh:
+   - Save dark-theme home/prediction/batch variants as `app_home.png`, `prediction_result.png`, and `batch_scoring.png` if legacy references remain.
+4. Use consistent dimensions (recommended width `1600px`) and crop only if readability improves.
 
 ## Pre-Release Visual Checks
 

@@ -17,14 +17,17 @@ Try the live app here: [Operations RCA NLP Demo](https://operations-root-cause-a
 
 ## Demo Preview
 
-![App Home Screenshot](docs/images/app_home_dark.png)
-_Real screenshot of the running UI home view._
+| Dark Theme | Light Theme |
+|---|---|
+| ![App Home Dark](docs/images/app_home_dark.png) | ![App Home Light](docs/images/app_home_light.png) |
 
-![Prediction Result View](docs/images/prediction_result.png)
-_Real screenshot of single-report prediction output._
+The interface supports light and dark themes for readability during analysis workflows.
 
-![Batch Scoring View](docs/images/batch_scoring.png)
-_Real screenshot of batch CSV scoring workflow._
+![Prediction Result Dark View](docs/images/prediction_result_dark.png)
+_Single-report prediction output view._
+
+![Batch Scoring Dark View](docs/images/batch_scoring_dark.png)
+_Batch CSV scoring workflow view._
 
 Visual asset notes and replacement instructions: [docs/visuals.md](docs/visuals.md)
 

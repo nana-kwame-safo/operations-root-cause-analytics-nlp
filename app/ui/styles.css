@@ -264,6 +264,10 @@ textarea {
   transition: transform 0.08s ease, filter 0.12s ease;
 }
 
+.btn.loading .btn-icon {
+  animation: spin 0.95s linear infinite;
+}
+
 .btn:active {
   transform: translateY(1px);
 }
@@ -358,6 +362,15 @@ textarea {
 
 .batch-guidance p {
   margin: 0;
+}
+
+.batch-guidance code {
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  padding: 0.05rem 0.3rem;
+  font-weight: 700;
 }
 
 .muted {
@@ -502,6 +515,10 @@ th {
 
 tbody tr:last-child td {
   border-bottom: 0;
+}
+
+tbody tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--surface-soft) 66%, var(--surface));
 }
 
 .empty-row {
@@ -682,5 +699,14 @@ body.view-batch .panel-note {
   .btn {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

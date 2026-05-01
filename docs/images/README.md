@@ -4,9 +4,15 @@ This folder contains committed documentation visuals for the public project narr
 
 Primary README visuals are PNG assets:
 
-- `app_home.png` (real UI screenshot)
-- `prediction_result.png` (real UI screenshot of prediction-result state)
-- `batch_scoring.png` (real UI screenshot of batch-scoring state)
+- `app_home_dark.png` and `app_home_light.png` (real UI screenshots)
+- `prediction_result_dark.png` and `prediction_result_light.png` (real UI screenshots)
+- `batch_scoring_dark.png` and `batch_scoring_light.png` (real UI screenshots)
 - `architecture.png` (system architecture diagram)
 - `model_workflow.png` (ML inference workflow diagram)
 - `metrics_summary.png` (aviation metrics snapshot)
+
+Legacy compatibility snapshots remain:
+
+- `app_home.png`
+- `prediction_result.png`
+- `batch_scoring.png`

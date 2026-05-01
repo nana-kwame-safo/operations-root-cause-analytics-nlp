@@ -26,6 +26,8 @@ const batchReviewCount = document.getElementById("batchReviewCount");
 const batchResultsBody = document.getElementById("batchResultsBody");
 
 const THEME_STORAGE_KEY = "orca_nlp_theme_mode";
+const DEFAULT_RESULTS_MESSAGE = "No prediction results yet. Enter a narrative and run scoring.";
+const DEFAULT_BATCH_MESSAGE = "No batch results yet. Upload a CSV and run batch prediction.";
 const themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 let selectedThemeMode = "system";
 let lastBatchResults = [];
@@ -35,6 +37,7 @@ let isBatchRunning = false;
 const urlParams = new URLSearchParams(window.location.search);
 const demoMode = (urlParams.get("demo") || "").toLowerCase();
 const viewMode = (urlParams.get("view") || "").toLowerCase();
+const forcedThemeMode = (urlParams.get("theme") || "").toLowerCase();
 
 thresholdInput.addEventListener("input", () => {
   thresholdValue.textContent = Number(thresholdInput.value).toFixed(2);
@@ -64,13 +67,26 @@ function applyTheme(mode) {
 }
 
 function initTheme() {
-  const saved = localStorage.getItem(THEME_STORAGE_KEY);
-  const mode = saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+  let mode = "system";
+  if (forcedThemeMode === "light" || forcedThemeMode === "dark" || forcedThemeMode === "system") {
+    mode = forcedThemeMode;
+  } else {
+    try {
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      mode = saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+    } catch (_err) {
+      mode = "system";
+    }
+  }
   applyTheme(mode);
 
   themeSelect.addEventListener("change", () => {
     const next = themeSelect.value;
-    localStorage.setItem(THEME_STORAGE_KEY, next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch (_err) {
+      // Ignore storage errors and keep in-memory theme mode.
+    }
     applyTheme(next);
   });
 
@@ -91,12 +107,12 @@ function setArtifactBanner(status) {
   artifactBanner.classList.remove("hidden", "ok", "review", "error", "info");
   if (status === "available") {
     artifactBanner.classList.add("ok");
-    artifactBanner.textContent = "Model artifact loaded. Prediction is available.";
+    artifactBanner.textContent = "Model artifact loaded. Live prediction is available.";
     return;
   }
   artifactBanner.classList.add("review");
   artifactBanner.textContent =
-    "Model artifact is not available in this deployment. The UI, metadata, and API are live; full prediction requires the trained aviation model artifact.";
+    "Model artifact not loaded. The UI, metadata, and API are live; full prediction requires the trained aviation model artifact.";
 }
 
 function setReviewChip(value, tone = "neutral") {
@@ -132,6 +148,7 @@ function setBatchStatus(text, tone = "") {
 function setPredictLoading(isLoading) {
   isPredicting = isLoading;
   predictBtn.disabled = isLoading;
+  predictBtn.classList.toggle("loading", isLoading);
   const label = predictBtn.querySelector("span:last-child");
   label.textContent = isLoading ? "Scoring Narrative..." : "Predict Factors";
 }
@@ -139,6 +156,7 @@ function setPredictLoading(isLoading) {
 function setBatchLoading(isLoading) {
   isBatchRunning = isLoading;
   batchBtn.disabled = isLoading;
+  batchBtn.classList.toggle("loading", isLoading);
   const label = batchBtn.querySelector("span:last-child");
   label.textContent = isLoading ? "Scoring Batch..." : "Run Batch Prediction";
 }
@@ -165,6 +183,13 @@ function renderEmptyBatchRow(text) {
   batchResultsBody.appendChild(row);
 }
 
+function resetPredictionResults(text = DEFAULT_RESULTS_MESSAGE) {
+  renderEmptyResultsRow(text);
+  resultCount.textContent = "0";
+  topScore.textContent = "N/A";
+  setReviewChip("N/A", "neutral");
+}
+
 function updateBatchStats(results) {
   const rows = results.length;
   const reviewCount = results.filter((item) => item.review_flag).length;
@@ -178,7 +203,7 @@ function updateBatchStats(results) {
 
 function renderBatchPreview(results) {
   if (!results.length) {
-    renderEmptyBatchRow("No batch results yet. Upload a CSV and run batch prediction.");
+    renderEmptyBatchRow(DEFAULT_BATCH_MESSAGE);
     return;
   }
 
@@ -243,10 +268,11 @@ function renderResults(predictedLabels) {
   resultsBody.innerHTML = "";
   if (!predictedLabels.length) {
     renderEmptyResultsRow(
-      "No root-cause-related factor indicators were above threshold for this narrative.",
+      "No root-cause-related factor indicators were above threshold for this narrative. Analyst review is recommended.",
     );
     resultCount.textContent = "0";
     topScore.textContent = "N/A";
+    setReviewChip("Review Recommended", "review");
     return;
   }
 
@@ -295,7 +321,7 @@ function renderResults(predictedLabels) {
 function normalizeErrorMessage(detail) {
   const raw = typeof detail === "string" ? detail : "Prediction request failed.";
   if (raw.toLowerCase().includes("artifact")) {
-    return "Prediction is currently unavailable because the trained model artifact is missing in this deployment.";
+    return "Prediction is currently unavailable because the trained aviation model artifact is not loaded.";
   }
   if (raw.toLowerCase().includes("domain")) {
     return "The selected domain is not implemented for prediction.";
@@ -308,9 +334,10 @@ async function runPrediction() {
 
   const narrative = narrativeInput.value.trim();
   if (!narrative) {
-    setBanner("Narrative text is required before scoring.", "error");
-    setPredictStatus("Provide a narrative to run root-cause-related factor scoring.", "warn");
-    renderResults([]);
+    const textRequiredMessage = "Narrative text is required before scoring.";
+    setBanner(textRequiredMessage, "error");
+    setPredictStatus(textRequiredMessage, "warn");
+    resetPredictionResults(DEFAULT_RESULTS_MESSAGE);
     return;
   }
 
@@ -336,7 +363,7 @@ async function runPrediction() {
       const msg = normalizeErrorMessage(data.detail);
       setBanner(msg, "error");
       setPredictStatus(msg, "error");
-      renderResults([]);
+      resetPredictionResults(DEFAULT_RESULTS_MESSAGE);
       setReviewChip("Unavailable", "error");
       return;
     }
@@ -355,7 +382,7 @@ async function runPrediction() {
     const msg = "Prediction request failed. Confirm the API is running.";
     setBanner(msg, "error");
     setPredictStatus(msg, "error");
-    renderResults([]);
+    resetPredictionResults(DEFAULT_RESULTS_MESSAGE);
     setReviewChip("Unavailable", "error");
   } finally {
     setPredictLoading(false);
@@ -401,13 +428,13 @@ function buildBatchCsvRows(results) {
 function normalizeBatchError(detail) {
   const raw = typeof detail === "string" ? detail : "Batch prediction failed.";
   if (raw.toLowerCase().includes("csv must contain text column")) {
-    return `Invalid CSV input. ${raw}`;
+    return `Invalid CSV input. ${raw} Check the text-column field and upload again.`;
   }
   if (raw.toLowerCase().includes("utf-8")) {
     return "CSV must be UTF-8 encoded.";
   }
   if (raw.toLowerCase().includes("artifact")) {
-    return "Batch prediction is unavailable because the trained model artifact is missing.";
+    return "Batch prediction is unavailable because the trained aviation model artifact is not loaded.";
   }
   return raw;
 }
@@ -416,7 +443,7 @@ async function runBatch() {
   if (isBatchRunning) return;
 
   if (!batchFile.files.length) {
-    setBatchStatus("Select a CSV file before running batch scoring.", "warn");
+    setBatchStatus("Select a UTF-8 CSV file before running batch scoring.", "warn");
     return;
   }
 
@@ -455,7 +482,10 @@ async function runBatch() {
     updateBatchStats(lastBatchResults);
     renderBatchPreview(lastBatchResults);
   } catch (_err) {
-    setBatchStatus("Batch request failed. Confirm the API is running.", "error");
+    setBatchStatus(
+      "Batch request failed. Confirm the API is running and the CSV includes the expected text column.",
+      "error",
+    );
     downloadBtn.disabled = true;
     lastBatchResults = [];
     updateBatchStats([]);
@@ -602,7 +632,7 @@ downloadBtn.addEventListener("click", () => {
 async function init() {
   initTheme();
   setViewMode();
-  setReviewChip("N/A", "neutral");
+  resetPredictionResults(DEFAULT_RESULTS_MESSAGE);
   setPredictStatus("Ready for narrative scoring.");
   updateBatchStats([]);
   renderBatchPreview([]);
