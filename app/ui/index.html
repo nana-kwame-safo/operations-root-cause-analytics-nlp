@@ -17,15 +17,26 @@
               factor classification.
             </p>
           </div>
-          <div class="hero-badges">
-            <span class="badge badge-domain">Aviation Demonstration</span>
-            <span class="badge badge-version">Baseline v0.1.0</span>
+          <div class="hero-actions">
+            <label class="field field-theme">
+              <span class="field-label">Theme</span>
+              <select id="themeSelect" aria-label="Theme mode">
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+            <div class="hero-badges">
+              <span class="badge badge-domain">ASRS Aviation Demonstration</span>
+              <span class="badge badge-version">Baseline v0.1.0</span>
+            </div>
           </div>
         </div>
         <p class="disclaimer">
           Decision-support prototype only: outputs are likely root-cause-related factor
           indicators and require analyst review before operational use.
         </p>
+        <div id="artifactBanner" class="banner hidden"></div>
       </header>
 
       <section class="panel panel-scoring">
@@ -85,6 +96,7 @@
               </span>
               <span>Predict Factors</span>
             </button>
+            <p id="predictStatus" class="status-line muted"></p>
           </div>
           <aside class="side-note">
             <h3>Analyst Guidance</h3>
@@ -150,8 +162,14 @@
         <div class="panel-header">
           <h2>Batch CSV Scoring</h2>
           <p class="muted">
-            Upload a CSV with a narrative text column (default: <code>text</code>) to
-            score multiple incident reports and export structured outputs.
+            Upload a UTF-8 CSV with incident narratives to score multiple reports and
+            export structured, analyst-ready outputs.
+          </p>
+        </div>
+        <div class="batch-guidance">
+          <p>
+            Required text column: <code>text</code> (or provide your column name below).
+            Each row should contain one narrative string.
           </p>
         </div>
         <div class="control-grid">

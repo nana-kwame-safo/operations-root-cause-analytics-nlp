@@ -57,6 +57,8 @@ Operations teams generate high volumes of free-text incident narratives across s
 - Applies threshold filtering and analyst review flags
 - Supports both single narrative scoring and CSV batch scoring
 - Exposes outputs through FastAPI endpoints and a lightweight web UI
+- Includes light/dark/system theme support in the analyst UI
+- Shows model artifact availability status in the UI on load
 
 Current positioning:
 
