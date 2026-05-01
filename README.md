@@ -9,9 +9,11 @@ Repository: **operations-root-cause-analytics-nlp**
 
 ## Live Demo
 
-Live deployment URL: **Coming soon**
+Try the live app here: [Operations RCA NLP Demo](PASTE_RENDER_URL_HERE)
 
 > This demo supports root-cause-related factor classification for analyst review. It does not establish definitive causality or replace expert investigation.
+>
+> Note: The public deployment may show model artifact status as missing until the aviation model artifact is generated and attached to the deployment environment. The API, UI, metadata, and documentation are live; full prediction requires `artifacts/aviation/model.joblib`.
 
 ## Demo Preview
 
