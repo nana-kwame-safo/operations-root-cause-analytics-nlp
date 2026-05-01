@@ -13,9 +13,11 @@ Try the live app here: [Operations RCA NLP Demo](https://operations-root-cause-a
 
 > This demo supports root-cause-related factor classification for analyst review. It does not establish definitive causality or replace expert investigation.
 >
-> Note: The public deployment may show model artifact status as missing until the aviation model artifact is generated and attached to the deployment environment. The API, UI, metadata, and documentation are live; full prediction requires `artifacts/aviation/model.joblib`.
+> The live demo loads the trained aviation model artifact from Hugging Face using `MODEL_ARTIFACT_URL`, keeping the GitHub repository lightweight and free from model binaries.
 
 ## Demo Preview
+
+### Home View
 
 | Dark Theme | Light Theme |
 |---|---|
@@ -23,11 +25,17 @@ Try the live app here: [Operations RCA NLP Demo](https://operations-root-cause-a
 
 The interface supports light and dark themes for readability during analysis workflows.
 
-![Prediction Result Dark View](docs/images/prediction_result_dark.png)
-_Single-report prediction output view._
+### Prediction Results
+
+| Dark Theme | Light Theme |
+|---|---|
+| ![Prediction Result Dark View](docs/images/prediction_result_dark.png) | ![Prediction Result Light View](docs/images/prediction_result_light.png) |
+
+### Batch Scoring View
 
 ![Batch Scoring Dark View](docs/images/batch_scoring_dark.png)
-_Batch CSV scoring workflow view._
+
+Additional batch screenshot variants are listed in [docs/visuals.md](docs/visuals.md).
 
 Visual asset notes and replacement instructions: [docs/visuals.md](docs/visuals.md)
 

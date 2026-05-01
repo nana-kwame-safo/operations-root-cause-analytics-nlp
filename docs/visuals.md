@@ -12,12 +12,17 @@ This file documents what each public visual shows, how it was produced, and how 
 | `docs/images/prediction_result_light.png` | Single-report prediction results in light theme | Live UI screenshot | Release-ready |
 | `docs/images/batch_scoring_dark.png` | Batch CSV scoring workflow in dark theme | Live UI screenshot | Release-ready |
 | `docs/images/batch_scoring_light.png` | Batch CSV scoring workflow in light theme | Live UI screenshot | Release-ready |
+| `docs/images/model_info_available.png` | Model information panel with `artifact_status: available` | Live UI screenshot | Optional; capture when needed |
 | `docs/images/app_home.png` | Previous home screenshot retained for compatibility | Live UI screenshot | Legacy snapshot |
 | `docs/images/prediction_result.png` | Previous prediction screenshot retained for compatibility | Live UI screenshot | Legacy snapshot |
 | `docs/images/batch_scoring.png` | Previous batch screenshot retained for compatibility | Live UI screenshot | Legacy snapshot |
 | `docs/images/architecture.png` | End-to-end project architecture (UI -> API -> services -> artifacts -> outputs) | Generated diagram | Release-ready |
 | `docs/images/model_workflow.png` | NLP inference workflow from narrative text to structured output | Generated diagram | Release-ready |
 | `docs/images/metrics_summary.png` | Aviation baseline metrics (Micro-F1, Macro-F1, Samples-F1, Hamming Loss) | Generated chart | Release-ready |
+
+The following optional screenshot is not currently present in this repository:
+
+- `docs/images/model_info_available.png`
 
 Temporary mock visuals are not used in the current README.
 
@@ -48,6 +53,7 @@ This regenerates:
    - `http://127.0.0.1:8000/?demo=prediction&view=prediction&theme=light` -> `docs/images/prediction_result_light.png`
    - `http://127.0.0.1:8000/?demo=batch&view=batch&theme=dark` -> `docs/images/batch_scoring_dark.png`
    - `http://127.0.0.1:8000/?demo=batch&view=batch&theme=light` -> `docs/images/batch_scoring_light.png`
+   - `http://127.0.0.1:8000/?theme=dark` (scroll to model panel) -> `docs/images/model_info_available.png` (optional)
 3. Optional compatibility refresh:
    - Save dark-theme home/prediction/batch variants as `app_home.png`, `prediction_result.png`, and `batch_scoring.png` if legacy references remain.
 4. Use consistent dimensions (recommended width `1600px`) and crop only if readability improves.
