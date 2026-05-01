@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import joblib
 
+from app.services.artifact_download import ensure_model_artifact
 from app.services.domain_registry import DomainRegistry
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -30,15 +34,44 @@ class LoadedModelBundle:
 class ModelLoader:
     """Loads model + metadata artifacts and keeps an in-memory cache per domain."""
 
-    def __init__(self, registry: DomainRegistry, artifacts_root: Path, domains_root: Path) -> None:
+    def __init__(
+        self,
+        registry: DomainRegistry,
+        artifacts_root: Path,
+        domains_root: Path,
+        model_artifact_url: str | None = None,
+        artifact_ensurer: Callable[..., tuple[bool, str | None]] = ensure_model_artifact,
+    ) -> None:
         self.registry = registry
         self.artifacts_root = artifacts_root
         self.domains_root = domains_root
+        self.model_artifact_url = model_artifact_url
+        self.artifact_ensurer = artifact_ensurer
         self._cache: dict[str, LoadedModelBundle] = {}
+        self._download_attempted: set[str] = set()
+        self._download_errors: dict[str, str] = {}
 
     def get_bundle(self, domain_id: str) -> LoadedModelBundle:
-        if domain_id not in self._cache:
+        cached = self._cache.get(domain_id)
+        if cached is None:
             self._cache[domain_id] = self._load_bundle(domain_id)
+            return self._cache[domain_id]
+
+        # Refresh unavailable bundles when an artifact appears later, or when
+        # a URL-backed download has not yet been attempted in this process.
+        should_refresh = (
+            not cached.available
+            and (
+                (cached.model_path is not None and cached.model_path.exists())
+                or (
+                    self.model_artifact_url
+                    and domain_id not in self._download_attempted
+                )
+            )
+        )
+        if should_refresh:
+            self._cache[domain_id] = self._load_bundle(domain_id)
+
         return self._cache[domain_id]
 
     def _load_bundle(self, domain_id: str) -> LoadedModelBundle:
@@ -58,8 +91,18 @@ class ModelLoader:
 
         labels = self._extract_labels(domain_cfg, metadata, label_mapping)
         model_path = artifact_dir / domain_cfg.get("model_artifact", "model.joblib")
+        download_error = self._ensure_artifact(domain_id=domain_id, model_path=model_path)
 
         if not model_path.exists():
+            if download_error:
+                error_message = (
+                    f"Model artifact not found at {model_path}. {download_error}"
+                )
+            else:
+                error_message = (
+                    f"Model artifact not found at {model_path}. "
+                    "Generate artifacts locally before calling prediction endpoints."
+                )
             return LoadedModelBundle(
                 domain_id=domain_id,
                 model=None,
@@ -70,10 +113,7 @@ class ModelLoader:
                 metadata=metadata,
                 available=False,
                 artifact_status="missing",
-                error_message=(
-                    f"Model artifact not found at {model_path}. "
-                    "Generate artifacts locally before calling prediction endpoints."
-                ),
+                error_message=error_message,
                 model_path=model_path,
             )
 
@@ -125,6 +165,49 @@ class ModelLoader:
             artifact_status="loaded",
             model_path=model_path,
         )
+
+    def _ensure_artifact(self, *, domain_id: str, model_path: Path) -> str | None:
+        if model_path.exists():
+            try:
+                self.artifact_ensurer(
+                    artifact_path=model_path,
+                    artifact_url=self.model_artifact_url,
+                )
+            except Exception as exc:  # pragma: no cover - defensive
+                logger.error(
+                    "Model artifact check failed for domain '%s' at %s: %s",
+                    domain_id,
+                    model_path,
+                    exc,
+                )
+            return None
+
+        if not self.model_artifact_url:
+            return None
+
+        if domain_id in self._download_attempted:
+            return self._download_errors.get(domain_id)
+
+        self._download_attempted.add(domain_id)
+        try:
+            available, error = self.artifact_ensurer(
+                artifact_path=model_path,
+                artifact_url=self.model_artifact_url,
+            )
+        except Exception as exc:  # pragma: no cover - defensive
+            error = f"Model artifact download failed from MODEL_ARTIFACT_URL: {exc}"
+            available = False
+        if not available and error:
+            self._download_errors[domain_id] = error
+            return error
+
+        if available:
+            logger.info(
+                "Model artifact is available for domain '%s' at %s",
+                domain_id,
+                model_path,
+            )
+        return None
 
     @staticmethod
     def _load_json_with_fallback(primary: Path, fallback: Path) -> dict[str, Any]:

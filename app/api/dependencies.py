@@ -26,6 +26,7 @@ def get_model_loader() -> ModelLoader:
         registry=registry,
         artifacts_root=settings.artifacts_root,
         domains_root=settings.domains_root,
+        model_artifact_url=settings.model_artifact_url,
     )
 
 

@@ -3,8 +3,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import joblib
+
 from app.services.domain_registry import DomainRegistry
 from app.services.model_loader import ModelLoader
+
+
+class _StubProbaModel:
+    def predict_proba(self, _x):
+        return [[0.75, 0.25]]
 
 
 def _write_demo_domain(domains_root: Path) -> None:
@@ -106,3 +113,85 @@ def test_aviation_metadata_example_contains_required_fields() -> None:
         "responsible_use_note",
     }
     assert required.issubset(payload.keys())
+
+
+def test_model_loader_missing_artifact_without_url(tmp_path: Path) -> None:
+    domains_root = tmp_path / "domains"
+    artifacts_root = tmp_path / "artifacts"
+    _write_demo_domain(domains_root)
+
+    registry = DomainRegistry(domains_root)
+    loader = ModelLoader(
+        registry=registry,
+        artifacts_root=artifacts_root,
+        domains_root=domains_root,
+        model_artifact_url=None,
+    )
+    bundle = loader.get_bundle("demo_ops")
+
+    assert bundle.available is False
+    assert bundle.artifact_status == "missing"
+    assert bundle.model_path is not None
+    assert not bundle.model_path.exists()
+
+
+def test_model_loader_downloads_artifact_when_url_configured(tmp_path: Path) -> None:
+    domains_root = tmp_path / "domains"
+    artifacts_root = tmp_path / "artifacts"
+    _write_demo_domain(domains_root)
+
+    calls: list[tuple[Path, str | None]] = []
+
+    def _fake_ensurer(*, artifact_path: Path, artifact_url: str | None):
+        calls.append((artifact_path, artifact_url))
+        artifact_path.parent.mkdir(parents=True, exist_ok=True)
+        joblib.dump(
+            {
+                "classifier": _StubProbaModel(),
+                "labels": ["Anomaly_1", "Anomaly_2"],
+                "metadata": {"domain": "demo_ops"},
+            },
+            artifact_path,
+        )
+        return True, None
+
+    registry = DomainRegistry(domains_root)
+    loader = ModelLoader(
+        registry=registry,
+        artifacts_root=artifacts_root,
+        domains_root=domains_root,
+        model_artifact_url="https://example.com/model.joblib",
+        artifact_ensurer=_fake_ensurer,
+    )
+    bundle = loader.get_bundle("demo_ops")
+
+    assert len(calls) == 1
+    assert calls[0][1] == "https://example.com/model.joblib"
+    assert bundle.available is True
+    assert bundle.artifact_status == "loaded"
+    assert bundle.model_path is not None
+    assert bundle.model_path.exists()
+
+
+def test_model_loader_download_failure_is_graceful(tmp_path: Path) -> None:
+    domains_root = tmp_path / "domains"
+    artifacts_root = tmp_path / "artifacts"
+    _write_demo_domain(domains_root)
+
+    def _failing_ensurer(*, artifact_path: Path, artifact_url: str | None):
+        return False, "Model artifact download failed from MODEL_ARTIFACT_URL: boom"
+
+    registry = DomainRegistry(domains_root)
+    loader = ModelLoader(
+        registry=registry,
+        artifacts_root=artifacts_root,
+        domains_root=domains_root,
+        model_artifact_url="https://example.com/model.joblib",
+        artifact_ensurer=_failing_ensurer,
+    )
+    bundle = loader.get_bundle("demo_ops")
+
+    assert bundle.available is False
+    assert bundle.artifact_status == "missing"
+    assert bundle.error_message is not None
+    assert "download failed" in bundle.error_message.lower()

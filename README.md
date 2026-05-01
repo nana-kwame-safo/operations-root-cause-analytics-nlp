@@ -217,6 +217,27 @@ Expected runtime files:
 - `artifacts/aviation/metadata.json` (recommended)
 - `artifacts/aviation/label_mapping.json` (optional)
 
+## Model Artifact Handling
+
+`model.joblib` is intentionally not committed to this public repository.
+
+For deployment environments (including Render), you can provide an external artifact URL through:
+
+- `MODEL_ARTIFACT_URL`
+
+Behavior:
+
+- If `artifacts/aviation/model.joblib` already exists, the app uses it directly.
+- If it is missing and `MODEL_ARTIFACT_URL` is set, the app attempts to download the artifact to `artifacts/aviation/model.joblib` on first model load.
+- If download fails, the app remains available (`/health`, `/domains`, `/model-info`, UI), and prediction endpoints continue to return model-unavailable messaging until the artifact is available.
+
+### Render Deployment Notes
+
+Set these environment variables in Render:
+
+- `PYTHON_VERSION=3.11.9`
+- `MODEL_ARTIFACT_URL=<https URL to your model.joblib>`
+
 ## Docker
 
 ```bash

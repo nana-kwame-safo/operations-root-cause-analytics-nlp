@@ -34,6 +34,7 @@ class Settings:
     default_top_k: int
     artifacts_root: Path
     domains_root: Path
+    model_artifact_url: str | None
 
 
 @lru_cache(maxsize=1)
@@ -52,4 +53,5 @@ def get_settings() -> Settings:
             os.getenv("DOMAINS_ROOT", "app/domains"),
             BASE_DIR,
         ),
+        model_artifact_url=os.getenv("MODEL_ARTIFACT_URL"),
     )
