@@ -9,7 +9,7 @@ Repository: **operations-root-cause-analytics-nlp**
 
 ## Live Demo
 
-Try the live app here: [Operations RCA NLP Demo](PASTE_RENDER_URL_HERE)
+Try the live app here: [Operations RCA NLP Demo](https://operations-root-cause-analytics-nlp.onrender.com/)
 
 > This demo supports root-cause-related factor classification for analyst review. It does not establish definitive causality or replace expert investigation.
 >
@@ -17,7 +17,7 @@ Try the live app here: [Operations RCA NLP Demo](PASTE_RENDER_URL_HERE)
 
 ## Demo Preview
 
-![App Home Screenshot](docs/images/app_home.png)
+![App Home Screenshot](docs/images/app_home_dark.png)
 _Real screenshot of the running UI home view._
 
 ![Prediction Result View](docs/images/prediction_result.png)
