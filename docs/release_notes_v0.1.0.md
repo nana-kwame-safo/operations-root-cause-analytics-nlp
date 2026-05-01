@@ -1,38 +1,40 @@
 # Release Notes v0.1.0
 
-## Tag
-`v0.1.0`
-
 ## Title
 Initial MVP — Operations Root Cause Analytics with NLP
 
 ## Summary
-First public MVP release of **Operations Root Cause Analytics with NLP**, framed as an operations analytics system for confidence-aware incident narrative factor classification with analyst review support.
+First public MVP release of **Operations Root Cause Analytics with NLP** for operations intelligence workflows using root-cause-related factor classification and analyst review support.
 
 ## Included in This Release
 
-- FastAPI backend with endpoints:
-  - `GET /health`
-  - `GET /domains`
-  - `GET /model-info`
-  - `POST /predict`
-  - `POST /predict-batch`
-- Single narrative prediction workflow
-- Batch CSV prediction workflow
-- ASRS aviation incident report demonstration domain
-- Confidence-aware thresholding and top-k filtering for root-cause-related factor predictions
-- Analyst review flags for low-confidence or no-strong-signal cases
-- Explainability-lite cue terms
-- Model metadata endpoint and model/domain configuration scaffolding
-- Lightweight web UI (Operations RCA NLP)
-- Docker support (`Dockerfile`, `.dockerignore`)
-- Test suite with pytest and GitHub Actions workflow
-- Evidence-backed README with visuals, results summary, and operational references
-- Responsible-use, data statement, model card, and future domain documentation
-- Multi-domain foundation and multimodal-ready roadmap framing
+- FastAPI backend
+- Lightweight web UI
+- ASRS aviation demonstration domain
+- Single narrative scoring
+- Batch CSV scoring
+- Confidence-aware thresholding
+- Root-cause-related factor predictions
+- Explanation cues
+- Analyst review flags
+- Model metadata endpoint
+- Docker support
+- `pytest` suite
+- Evidence-backed README
+- Responsible-use documentation
+- Architecture and workflow visuals
+- Multi-domain and multimodal-ready roadmap
+
+## API Surface in v0.1.0
+
+- `GET /health`
+- `GET /domains`
+- `GET /model-info`
+- `POST /predict`
+- `POST /predict-batch`
 
 ## Notes
 
 - This release is a decision-support prototype and does not establish definitive causality findings.
 - Raw incident dataset files are intentionally excluded from the public repository.
-- Local model artifacts are required for live predictions.
+- Live prediction endpoints require local or deployment-attached `artifacts/aviation/model.joblib`.
