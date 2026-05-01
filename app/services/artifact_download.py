@@ -31,7 +31,7 @@ def ensure_model_artifact(
     try:
         artifact_path.parent.mkdir(parents=True, exist_ok=True)
         logger.info(
-            "Downloading model artifact to %s using MODEL_ARTIFACT_URL",
+            "Downloading model artifact from external URL to %s using MODEL_ARTIFACT_URL",
             artifact_path,
         )
         with urlopen(artifact_url, timeout=timeout_seconds) as src, artifact_path.open("wb") as dst:

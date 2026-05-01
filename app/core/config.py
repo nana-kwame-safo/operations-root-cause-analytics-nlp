@@ -35,10 +35,12 @@ class Settings:
     artifacts_root: Path
     domains_root: Path
     model_artifact_url: str | None
+    model_artifact_path: Path | None
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
+    raw_model_artifact_path = os.getenv("MODEL_ARTIFACT_PATH")
     return Settings(
         app_name=os.getenv("APP_NAME", APP_NAME),
         app_version=os.getenv("APP_VERSION", APP_VERSION),
@@ -54,4 +56,9 @@ def get_settings() -> Settings:
             BASE_DIR,
         ),
         model_artifact_url=os.getenv("MODEL_ARTIFACT_URL"),
+        model_artifact_path=(
+            _resolve_path(raw_model_artifact_path, BASE_DIR)
+            if raw_model_artifact_path
+            else None
+        ),
     )

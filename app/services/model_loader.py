@@ -40,12 +40,14 @@ class ModelLoader:
         artifacts_root: Path,
         domains_root: Path,
         model_artifact_url: str | None = None,
+        model_artifact_path: Path | None = None,
         artifact_ensurer: Callable[..., tuple[bool, str | None]] = ensure_model_artifact,
     ) -> None:
         self.registry = registry
         self.artifacts_root = artifacts_root
         self.domains_root = domains_root
         self.model_artifact_url = model_artifact_url
+        self.model_artifact_path = model_artifact_path
         self.artifact_ensurer = artifact_ensurer
         self._cache: dict[str, LoadedModelBundle] = {}
         self._download_attempted: set[str] = set()
@@ -90,19 +92,25 @@ class ModelLoader:
         )
 
         labels = self._extract_labels(domain_cfg, metadata, label_mapping)
-        model_path = artifact_dir / domain_cfg.get("model_artifact", "model.joblib")
+        model_path = self._resolve_model_path(
+            domain_id=domain_id,
+            artifact_dir=artifact_dir,
+            domain_cfg=domain_cfg,
+        )
         download_error = self._ensure_artifact(domain_id=domain_id, model_path=model_path)
 
         if not model_path.exists():
             if download_error:
                 error_message = (
-                    f"Model artifact not found at {model_path}. {download_error}"
+                    f"Prediction unavailable because artifact is missing at {model_path}. "
+                    f"{download_error}"
                 )
             else:
                 error_message = (
-                    f"Model artifact not found at {model_path}. "
+                    f"Prediction unavailable because artifact is missing at {model_path}. "
                     "Generate artifacts locally before calling prediction endpoints."
                 )
+            logger.warning(error_message)
             return LoadedModelBundle(
                 domain_id=domain_id,
                 model=None,
@@ -120,6 +128,11 @@ class ModelLoader:
         try:
             payload = joblib.load(model_path)
         except Exception as exc:  # pragma: no cover - defensive
+            error_message = (
+                f"Prediction unavailable because artifact is missing or invalid at {model_path}. "
+                f"Failed to load model artifact: {exc}"
+            )
+            logger.error(error_message)
             return LoadedModelBundle(
                 domain_id=domain_id,
                 model=None,
@@ -129,8 +142,8 @@ class ModelLoader:
                 label_mapping=label_mapping,
                 metadata=metadata,
                 available=False,
-                artifact_status="error",
-                error_message=f"Failed to load model artifact: {exc}",
+                artifact_status="missing",
+                error_message=error_message,
                 model_path=model_path,
             )
 
@@ -139,6 +152,11 @@ class ModelLoader:
         final_labels = model_labels or labels
 
         if model is None and classifier is None:
+            error_message = (
+                f"Prediction unavailable because artifact is missing or invalid at {model_path}. "
+                "Loaded artifact does not expose a prediction interface."
+            )
+            logger.error(error_message)
             return LoadedModelBundle(
                 domain_id=domain_id,
                 model=None,
@@ -148,8 +166,8 @@ class ModelLoader:
                 label_mapping=label_mapping,
                 metadata=merged_metadata,
                 available=False,
-                artifact_status="error",
-                error_message="Loaded artifact does not expose a prediction interface.",
+                artifact_status="missing",
+                error_message=error_message,
                 model_path=model_path,
             )
 
@@ -162,9 +180,20 @@ class ModelLoader:
             label_mapping=label_mapping,
             metadata=merged_metadata,
             available=True,
-            artifact_status="loaded",
+            artifact_status="available",
             model_path=model_path,
         )
+
+    def _resolve_model_path(
+        self,
+        *,
+        domain_id: str,
+        artifact_dir: Path,
+        domain_cfg: dict[str, Any],
+    ) -> Path:
+        if self.model_artifact_path is not None and domain_id == "aviation":
+            return self.model_artifact_path
+        return artifact_dir / domain_cfg.get("model_artifact", "model.joblib")
 
     def _ensure_artifact(self, *, domain_id: str, model_path: Path) -> str | None:
         if model_path.exists():

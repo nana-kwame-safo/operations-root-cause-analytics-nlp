@@ -25,7 +25,7 @@ def test_model_info_endpoint():
     if payload["artifact_status"] == "missing":
         # Falls back to metadata.example.json values when model artifact is absent.
         assert micro_f1 == 0.658
-    assert payload["artifact_status"] in {"missing", "loaded", "error"}
+    assert payload["artifact_status"] in {"missing", "available"}
 
 
 def test_model_info_unknown_domain_returns_404():

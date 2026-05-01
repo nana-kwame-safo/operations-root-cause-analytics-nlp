@@ -168,7 +168,7 @@ def test_model_loader_downloads_artifact_when_url_configured(tmp_path: Path) -> 
     assert len(calls) == 1
     assert calls[0][1] == "https://example.com/model.joblib"
     assert bundle.available is True
-    assert bundle.artifact_status == "loaded"
+    assert bundle.artifact_status == "available"
     assert bundle.model_path is not None
     assert bundle.model_path.exists()
 

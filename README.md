@@ -224,12 +224,14 @@ Expected runtime files:
 For deployment environments (including Render), you can provide an external artifact URL through:
 
 - `MODEL_ARTIFACT_URL`
+- `MODEL_ARTIFACT_PATH` (optional, defaults to `artifacts/aviation/model.joblib`)
 
 Behavior:
 
 - If `artifacts/aviation/model.joblib` already exists, the app uses it directly.
 - If it is missing and `MODEL_ARTIFACT_URL` is set, the app attempts to download the artifact to `artifacts/aviation/model.joblib` on first model load.
 - If download fails, the app remains available (`/health`, `/domains`, `/model-info`, UI), and prediction endpoints continue to return model-unavailable messaging until the artifact is available.
+- Raw data remains excluded from this repository (`data/raw`, `data/interim`, `data/processed` are not committed).
 
 ### Render Deployment Notes
 
@@ -237,6 +239,7 @@ Set these environment variables in Render:
 
 - `PYTHON_VERSION=3.11.9`
 - `MODEL_ARTIFACT_URL=<https URL to your model.joblib>`
+- `MODEL_ARTIFACT_PATH=artifacts/aviation/model.joblib` (optional override)
 
 ## Docker
 
