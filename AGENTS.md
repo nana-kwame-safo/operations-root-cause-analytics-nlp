@@ -26,7 +26,7 @@ docker run -p 8000:8000 operations-root-cause-analytics-nlp
 - Keep `data/raw`, `data/interim`, and `data/processed` out of version control.
 
 ## Framing Guardrail
-- Do not frame outputs as definitive root-cause determination.
+- Do not frame outputs as definitive causality findings.
 - Describe outputs as root-cause-related, contributory-factor, or anomaly-factor indicators for analyst review.
 
 ## Preferred Code Style

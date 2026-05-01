@@ -10,5 +10,3 @@ Primary README visuals are PNG assets:
 - `architecture.png` (system architecture diagram)
 - `model_workflow.png` (ML inference workflow diagram)
 - `metrics_summary.png` (aviation metrics snapshot)
-
-Legacy SVG files are retained for historical reference and can be removed in a future cleanup if no longer used.

@@ -26,7 +26,8 @@ To add a new domain:
 3. Train/export artifacts under `artifacts/<domain_id>/`
 4. Reuse the same prediction pipeline and endpoints
 
-## Diagram Placeholder
-Add architecture diagram image here for portfolio presentation:
+## Architecture Diagram
 
-`docs/images/architecture-diagram.svg`
+Current public architecture visual:
+
+`docs/images/architecture.png`

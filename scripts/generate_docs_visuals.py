@@ -144,34 +144,62 @@ def make_architecture(path: Path) -> None:
     _header(
         draw,
         "Architecture - Operations RCA NLP",
-        "Clear service flow from user interaction to analyst-facing outputs",
+        "Project-specific flow from analyst input to dashboard-ready outputs",
     )
 
-    y0, y1 = 230, 500
-    gap = 24
-    widths = [170, 170, 180, 190, 280, 190, 190]
+    y0, y1 = 215, 500
+    gap = 10
+    widths = [120, 120, 135, 145, 155, 145, 145, 145, 130, 165]
     titles = [
         "User / Analyst",
         "Web UI",
-        "FastAPI API",
+        "FastAPI API Layer",
         "Domain Registry",
-        "Prediction / Explanation / Batch Services",
+        "Aviation Domain Config",
+        "Prediction Service",
+        "Explanation Service",
+        "Batch Scoring Service",
         "Model Artifacts",
-        "Analyst Outputs",
+        "Analyst Outputs / CSV / Dashboard-ready Results",
     ]
     bodies = [
-        "Submits incident narratives and reviews outputs.",
-        "Single and batch workflows with threshold and top-k controls.",
-        "Routes: /health, /domains, /model-info, /predict, /predict-batch.",
-        "Domain metadata and implementation status registry.",
-        "Prediction scoring, cue extraction, and batch CSV processing.",
-        "Model joblib, metadata, and label mapping files.",
-        "Factor labels, confidence scores, cue terms, and review flags.",
+        "Narrative entry and output review.",
+        "Single and batch analyst workflows.",
+        "Endpoints for scoring and metadata.",
+        "Implemented and planned domain registry.",
+        "Domain config and label mappings.",
+        "TF-IDF + OvR logistic label scoring.",
+        "Cue term generation per label.",
+        "CSV row-by-row batch scoring.",
+        "model.joblib, metadata, label mapping.",
+        "Labels, confidence, review flag, export-ready results.",
     ]
-    fills = ["#f9fbff", "#eff6ff", "#eff8ff", "#eefbff", "#f2f7ff", "#f6faff", "#eefaf3"]
-    borders = ["#b8c9e0", "#90b5e4", "#8eb9e8", "#97c3da", "#9fb8e3", "#afc6e6", "#98d1ad"]
+    fills = [
+        "#f9fbff",
+        "#eff6ff",
+        "#eff8ff",
+        "#eefbff",
+        "#eef9f5",
+        "#f2f7ff",
+        "#f2f8ff",
+        "#f4f9ff",
+        "#f6faff",
+        "#eefaf3",
+    ]
+    borders = [
+        "#b8c9e0",
+        "#90b5e4",
+        "#8eb9e8",
+        "#97c3da",
+        "#9bcfb8",
+        "#9fb8e3",
+        "#9cb4e0",
+        "#acc1e5",
+        "#afc6e6",
+        "#98d1ad",
+    ]
 
-    x = 38
+    x = 50
     boxes: list[tuple[int, int, int, int]] = []
     for w, title, body, fill, border in zip(widths, titles, bodies, fills, borders):
         box = (x, y0, x + w, y1)
@@ -184,7 +212,7 @@ def make_architecture(path: Path) -> None:
             fill=fill,
             border=border,
             body_color="#405671",
-            title_font=F_FLOW_TITLE,
+            title_font=_font(17, bold=True),
             body_font=F_FLOW_BODY,
         )
         x += w + gap
@@ -193,8 +221,8 @@ def make_architecture(path: Path) -> None:
     for i in range(len(boxes) - 1):
         _arrow(
             draw,
-            (boxes[i][2] + 4, center_y),
-            (boxes[i + 1][0] - 8, center_y),
+            (boxes[i][2] + 2, center_y),
+            (boxes[i + 1][0] - 2, center_y),
         )
 
     draw.rounded_rectangle(
@@ -208,12 +236,13 @@ def make_architecture(path: Path) -> None:
     _draw_multiline(
         draw,
         (
-            "User/Analyst -> Web UI -> FastAPI API -> Domain Registry -> "
-            "Prediction/Explanation/Batch Services -> Model Artifacts -> Analyst Outputs"
+            "User/Analyst -> Web UI -> FastAPI API Layer -> Domain Registry -> "
+            "Aviation Domain Config -> Prediction Service -> Explanation Service -> "
+            "Batch Scoring Service -> Model Artifacts -> Analyst Outputs / CSV / Dashboard-ready Results"
         ),
         (138, 704),
         WIDTH - 276,
-        F_SUBTITLE,
+        _font(24),
         "#334a68",
         line_gap=10,
     )
@@ -231,9 +260,10 @@ def make_model_workflow(path: Path) -> None:
     step_titles = [
         "Incident Narrative",
         "Text Preprocessing",
-        "TF-IDF Features",
+        "TF-IDF Vectorisation",
         "Multi-label Logistic Regression",
-        "Factor Scores",
+        "22 Root-Cause-Related Factor Labels",
+        "Confidence Scores",
         "Threshold Filtering",
         "Review Flag",
         "Structured Output",
@@ -243,10 +273,11 @@ def make_model_workflow(path: Path) -> None:
         "Clean, normalize, tokenize",
         "Sparse weighted vectors",
         "One-vs-rest scoring",
+        "Anomaly_1 ... Anomaly_22",
         "Per-label probabilities",
         "Keep labels above threshold",
         "Escalate uncertain cases",
-        "Labels, confidence, cues",
+        "Labels, confidence, cues, flag",
     ]
     fills = [
         "#eef6ff",
@@ -257,6 +288,7 @@ def make_model_workflow(path: Path) -> None:
         "#fff8ed",
         "#fff4ee",
         "#eefbf3",
+        "#eefaf3",
     ]
     borders = [
         "#9ec2eb",
@@ -267,11 +299,12 @@ def make_model_workflow(path: Path) -> None:
         "#ecc386",
         "#e7b9a5",
         "#9fd2ad",
+        "#97cfa8",
     ]
 
-    y0, y1 = 260, 470
-    w, gap = 170, 18
-    x = 57
+    y0, y1 = 240, 470
+    w, gap = 150, 12
+    x = 46
     boxes: list[tuple[int, int, int, int]] = []
     for title, body, fill, border in zip(step_titles, step_bodies, fills, borders):
         box = (x, y0, x + w, y1)
@@ -284,7 +317,7 @@ def make_model_workflow(path: Path) -> None:
             fill=fill,
             border=border,
             body_color="#3f536d",
-            title_font=F_FLOW_TITLE,
+            title_font=_font(17, bold=True),
             body_font=F_FLOW_BODY,
         )
         x += w + gap
@@ -305,11 +338,11 @@ def make_model_workflow(path: Path) -> None:
         draw,
         (
             "Predictions are root-cause-related contributory-factor indicators for analyst review. "
-            "They are confidence-ranked and review-flagged outputs, not definitive causal determination."
+            "They are confidence-ranked and review-flagged outputs, not definitive causality findings."
         ),
         (152, 648),
         WIDTH - 300,
-        F_SUBTITLE,
+        _font(24),
         "#3b526f",
         line_gap=10,
     )

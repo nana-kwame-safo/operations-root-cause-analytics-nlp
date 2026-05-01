@@ -54,8 +54,8 @@ def test_predict_empty_input_returns_validation_error():
 
 
 def test_predict_missing_artifact_behavior():
-    with pytest.raises(HTTPException) as exc:
-        predict(
+    try:
+        response = predict(
             PredictionRequest(
                 text="Sample narrative",
                 domain="aviation",
@@ -64,8 +64,15 @@ def test_predict_missing_artifact_behavior():
             ),
             predictor=get_predictor(),
         )
-    assert exc.value.status_code == 503
-    assert "Model artifact not found" in str(exc.value.detail)
+    except HTTPException as exc:
+        assert exc.status_code == 503
+        assert "Model artifact not found" in str(exc.detail)
+        return
+
+    # If a local artifact exists, prediction should succeed instead of raising.
+    payload = response.model_dump()
+    assert payload["domain"] == "aviation"
+    assert isinstance(payload["predicted_labels"], list)
 
 
 def test_predict_unknown_domain_returns_404():

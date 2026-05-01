@@ -44,6 +44,7 @@ data/processed/
 # Local model artifacts / binaries
 artifacts/**/*.joblib
 artifacts/**/*.pkl
+artifacts/**/*.pickle
 artifacts/**/*.npy
 artifacts/**/*.npz
 artifacts/**/*.onnx
@@ -52,6 +53,7 @@ artifacts/**/*.pt
 artifacts/**/*.ckpt
 *.joblib
 *.pkl
+*.pickle
 *.onnx
 *.pt
 *.ckpt

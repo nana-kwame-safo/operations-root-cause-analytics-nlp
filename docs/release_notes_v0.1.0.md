@@ -33,6 +33,6 @@ First public MVP release of **Operations Root Cause Analytics with NLP**, framed
 
 ## Notes
 
-- This release is a decision-support prototype and does not perform definitive root cause determination.
+- This release is a decision-support prototype and does not establish definitive causality findings.
 - Raw incident dataset files are intentionally excluded from the public repository.
 - Local model artifacts are required for live predictions.

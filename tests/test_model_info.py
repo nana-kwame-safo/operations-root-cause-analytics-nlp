@@ -19,7 +19,12 @@ def test_model_info_endpoint():
     assert payload["model_name"] == "TF-IDF + One-vs-Rest Logistic Regression"
     assert payload["label_count"] == 22
     assert payload["threshold"] == 0.5
-    assert payload["evaluation_metrics"]["micro_f1"] == 0.658
+    micro_f1 = payload["evaluation_metrics"]["micro_f1"]
+    assert micro_f1 is not None
+    assert 0.0 <= micro_f1 <= 1.0
+    if payload["artifact_status"] == "missing":
+        # Falls back to metadata.example.json values when model artifact is absent.
+        assert micro_f1 == 0.658
     assert payload["artifact_status"] in {"missing", "loaded", "error"}
 
 

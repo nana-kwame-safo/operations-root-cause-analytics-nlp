@@ -16,7 +16,7 @@
 
 ## Non-Intended Use
 
-- Definitive root cause determination or causal proof
+- Definitive causality findings
 - Replacement for expert incident investigation
 - Certified operational safety decision automation
 - Autonomous investigation or enforcement workflows

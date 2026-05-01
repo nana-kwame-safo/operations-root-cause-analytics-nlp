@@ -6,7 +6,7 @@ Outputs are analyst decision-support signals. The system provides confidence-awa
 
 ## No Causal Proof
 
-The model does not prove causality and does not produce definitive root cause determinations. Predictions should be interpreted as contributory-factor indicators requiring context review.
+The model does not establish definitive causality findings. Predictions should be interpreted as contributory-factor indicators requiring context review.
 
 ## Human Review Requirement
 

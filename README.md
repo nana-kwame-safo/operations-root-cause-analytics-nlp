@@ -2,124 +2,83 @@
 
 **Natural Language Processing for Incident Narrative Analysis and Root Cause Factor Classification**
 
-An applied operations analytics NLP project that analyzes incident reports and classifies them into likely root-cause-related factor categories to support analyst review and operational decision-making.
-
-Current release framing: text-based MVP now, multi-domain-ready architecture, multimodal-ready expansion later, and agentic analyst-support workflows as a future direction.
+Operations RCA NLP is an operations intelligence NLP project for root-cause-related factor classification and analyst review support from free-text incident narratives.
 
 Short name: **Operations RCA NLP**  
 Repository: **operations-root-cause-analytics-nlp**
 
 ## Live Demo
 
-Try the live app here: [Operations RCA NLP Demo](PASTE_RENDER_URL_HERE)
+Live deployment URL: **Coming soon**
 
 > This demo supports root-cause-related factor classification for analyst review. It does not establish definitive causality or replace expert investigation.
 
 ## Demo Preview
 
 ![App Home Screenshot](docs/images/app_home.png)
-_Caption: Real screenshot of the running analyst UI home view with domain selection, threshold/top-k controls, and narrative input._
+_Real screenshot of the running UI home view._
 
 ![Prediction Result View](docs/images/prediction_result.png)
-_Caption: Real app prediction-result state showing predicted factor labels, confidence scores, explanation cues, and review-flag messaging._
+_Real screenshot of single-report prediction output._
 
 ![Batch Scoring View](docs/images/batch_scoring.png)
-_Caption: Real app batch-scoring state showing CSV upload controls, run/download actions, and structured multi-row output preview._
-
-![Architecture Diagram](docs/images/architecture.png)
-_Caption: System architecture showing UI, FastAPI API layer, domain registry, aviation artifacts, prediction/explanation services, batch scorer, and analyst-ready outputs._
-
-![Model Workflow Diagram](docs/images/model_workflow.png)
-_Caption: Narrative-to-signal workflow from preprocessing and TF-IDF through multi-label classification, thresholding, and review-flag output._
-
-![Metrics Summary](docs/images/metrics_summary.png)
-_Caption: Current aviation demonstration performance summary (Micro-F1, Macro-F1, Samples-F1, and Hamming Loss)._
+_Real screenshot of batch CSV scoring workflow._
 
 Visual asset notes and replacement instructions: [docs/visuals.md](docs/visuals.md)
 
 ## Project Background
 
-Operational organizations generate large volumes of free-text reports across incident reporting, maintenance notes, safety observations, service disruption logs, asset failure records, near-miss reports, and housing repair narratives.
+Operations teams generate high volumes of free-text incident narratives across safety logs, maintenance events, disruption reports, and near-miss records. These narratives contain contributory-factor indicators, but manual review is hard to scale consistently. This project converts narrative text into structured outputs for analyst review support and downstream operations intelligence workflows.
 
-These narratives often contain signals about recurring failures, operational risk patterns, process weaknesses, and contributory factors. The challenge is that unstructured text is difficult to review consistently at scale. This project applies NLP to convert raw narrative text into structured, reviewable operations intelligence outputs.
+## Why This Matters
 
-## Why This Project Matters
+- Faster triage for analyst teams handling large incident queues
+- Better detection of recurring contributory-factor patterns
+- More consistent categorization across reviewers and time periods
+- Dashboard-ready outputs for operational reporting and action tracking
+- Practical support for root-cause-related analysis workflows
 
-- Faster incident triage for analysts handling large queues
-- Better recurring-issue detection across narrative streams
-- More consistent factor categorization across teams
-- Structured outputs that are dashboard-ready and audit-friendly
-- Practical support for analyst review workflows
-- Practical support for root cause analysis workflows
-- Better operational risk and reliability intelligence inputs
+## Evidence-Backed Motivation
 
-## Evidence-Backed Real-World Motivation
-
-- NASA’s Aviation Safety Reporting System (ASRS) has collected and analyzed more than 2 million reports since 1976, showing the real scale of incident-narrative operations data. [1][2]
-- ASRS submissions include unsafe occurrences, near-misses, hazardous situations, and best-practice observations from aviation operations. [1][2]
-- ASRS narratives are de-identified and used for policy work, human factors research, education, training, and safety analysis, which makes them a credible demonstration source for narrative analytics. [1][2]
-- OSHA incident-investigation guidance emphasizes that addressing underlying/root causes is necessary to understand incidents, define effective corrective actions, and prevent recurrence. [3]
-- FAA Safety Management System (SMS) guidance includes hazard identification, risk assessment, risk analysis, and risk control as core safety risk management steps. [4]
-- NIST AI RMF 1.0 emphasizes clearly defined organizational roles and responsibilities when AI supports decision or oversight contexts. [5]
-
-## Current Demonstration Domain
-
-The first implemented demonstration domain is aviation incident narratives from an ASRS/SIAM benchmark snapshot.
-
-Aviation is used as the first domain because it is a mature real-world reporting environment with long-standing safety narrative practices and published governance context. The platform architecture is intentionally designed for broader operations analytics domains beyond aviation.
+- NASA's Aviation Safety Reporting System (ASRS) has collected and analyzed over 2 million safety reports since 1976, showing the scale and value of narrative safety data. [1]
+- ASRS submissions include unsafe occurrences, near-misses, hazardous situations, and best-practice observations, making aviation a strong first demonstration domain. [1][2]
+- OSHA incident-investigation guidance emphasizes finding and correcting underlying causes to prevent recurrence. [3]
+- FAA SMS guidance describes hazard identification, risk assessment, risk analysis, and risk control as core safety risk management activities. [4]
+- NIST AI RMF 1.0 highlights role clarity and governance when AI outputs support human decision workflows. [5]
 
 ## What the System Does
 
-- Accepts a free-text incident narrative
-- Vectorizes text with TF-IDF
-- Predicts multiple root-cause-related factor labels
-- Returns confidence scores by label
-- Surfaces explanation cue terms
-- Flags uncertain cases for analyst review
-- Supports single-report and batch CSV scoring
-- Exposes outputs through FastAPI and a lightweight web UI
+- Accepts free-text incident narratives
+- Applies text preprocessing and TF-IDF vectorisation
+- Predicts multi-label root-cause-related factor categories
+- Returns confidence scores and explanation cues
+- Applies threshold filtering and analyst review flags
+- Supports both single narrative scoring and CSV batch scoring
+- Exposes outputs through FastAPI endpoints and a lightweight web UI
 
-## System Workflow
+Current positioning:
 
-```mermaid
-flowchart LR
-    A[Incident Narrative] --> B[Text Preprocessing / TF-IDF]
-    B --> C[Multi-label Classifier]
-    C --> D[Root-Cause-Related Factor Predictions]
-    D --> E[Confidence Scores]
-    E --> F[Explanation Cues]
-    F --> G[Analyst Review Flag]
-    G --> H[Structured Output for Reporting / Dashboarding]
-```
+- ASRS aviation incident reports are the first implemented demonstration domain
+- The platform is not aviation-only and is designed for multi-domain onboarding
+- The MVP is text-based now
+- The architecture is multi-domain-ready
+- The roadmap is multimodal-ready later
+- Agentic analyst-support workflows are planned as a future direction
 
-## Features
+## System Architecture Diagram
 
-- FastAPI backend
-- Lightweight interactive web UI
-- Single-report prediction
-- Batch CSV scoring
-- Threshold control
-- Top-k control
-- Model metadata endpoint
-- Explainability-lite cues
-- Analyst review flags
-- Docker support
-- `pytest` test suite
-- GitHub Actions CI
-- Responsible-use documentation
+![Architecture Diagram](docs/images/architecture.png)
+_Project-specific architecture from user input to analyst outputs and dashboard-ready results._
 
-## Model Summary (Aviation Demonstration)
+## Model Workflow Diagram
 
-- Model: TF-IDF + One-vs-Rest Logistic Regression
-- Labels: 22 (`Anomaly_1` to `Anomaly_22`)
-- Default threshold: `0.50`
-- Evaluation metrics:
-  - Micro-F1: `0.658`
-  - Macro-F1: `0.630`
-  - Samples-F1: `0.654`
-  - Hamming Loss: `0.073`
+![Model Workflow Diagram](docs/images/model_workflow.png)
+_Inference workflow from incident narrative through preprocessing, classification, filtering, and structured output._
 
-## Results
+## Results Summary
+
+![Metrics Summary](docs/images/metrics_summary.png)
+_Aviation demonstration metrics overview._
 
 | Metric | Value |
 |---|---:|
@@ -128,15 +87,11 @@ flowchart LR
 | Samples-F1 | 0.654 |
 | Hamming Loss | 0.073 |
 
-Interpretation:
-- Micro-F1 and Samples-F1 indicate useful overall multi-label performance for analyst-support triage.
-- Macro-F1 shows more variability across labels, which is expected in imbalanced operational taxonomies.
-- Hamming Loss indicates relatively low per-label error for this demonstration setup.
-
 Notes:
-- These values are from the aviation demonstration domain only.
-- New domains require domain-specific retraining and revalidation.
-- Detailed model context: [docs/model_card_aviation.md](docs/model_card_aviation.md)
+
+- Metrics are from the aviation demonstration domain baseline.
+- New domains require domain-specific retraining and validation.
+- Detailed context: [docs/model_card_aviation.md](docs/model_card_aviation.md)
 
 ## Example Output
 
@@ -162,10 +117,7 @@ Notes:
 }
 ```
 
-Human-readable interpretation:
-- The narrative likely maps to two contributory-factor categories with moderate-to-strong confidence.
-- Explanation cues show the lexical evidence influencing label ranking.
-- `review_flag` communicates whether manual analyst attention should be prioritized.
+The output is a confidence-ranked set of contributory-factor indicators for analyst review support, not definitive causality findings.
 
 ## API Endpoints
 
@@ -214,7 +166,7 @@ curl -X POST "http://127.0.0.1:8000/predict-batch" \
   -F "text_column=text"
 ```
 
-## How to Run Locally
+## Local Setup
 
 ```bash
 python3 -m venv .venv
@@ -225,7 +177,7 @@ uvicorn app.main:app --reload
 
 Open `http://127.0.0.1:8000` in your browser.
 
-## How to Generate Artifacts
+## Artifact Generation
 
 The public repository does not include raw datasets or `model.joblib`. Generate artifacts locally from your permitted dataset copy.
 
@@ -258,11 +210,10 @@ python scripts/export_aviation_artifacts.py \
 ```
 
 Expected runtime files:
-- `artifacts/aviation/model.joblib` (required)
+
+- `artifacts/aviation/model.joblib` (required for live predictions)
 - `artifacts/aviation/metadata.json` (recommended)
 - `artifacts/aviation/label_mapping.json` (optional)
-
-`metadata.json` includes model details, threshold, label count, training date, training approach, evaluation metrics, dataset provenance, limitation framing, and responsible-use guidance.
 
 ## Docker
 
@@ -273,16 +224,15 @@ docker run -p 8000:8000 operations-root-cause-analytics-nlp
 
 ## Responsible Use
 
-- Decision support only
-- Not definitive root cause determination
-- Not causal proof
-- Not a replacement for expert investigation
-- Human review required
-- Not certified for operational safety decisions
+- Decision-support system for analyst review workflows
+- Not a source of definitive causality findings
+- Not a replacement for expert investigation workflows
+- Human review remains required
+- Not certified as a production safety-critical decision system
 
-## Future Roadmap
+## Roadmap
 
-Versioned public roadmap: [docs/roadmap.md](docs/roadmap.md)
+Public roadmap: [docs/roadmap.md](docs/roadmap.md)
 
 - `v0.1.0` ASRS text-based MVP
 - `v0.2.0` analytics/dashboard layer
@@ -294,9 +244,7 @@ Domain onboarding guide: [docs/adding_new_domain.md](docs/adding_new_domain.md)
 
 ## Analytics Industry Relevance
 
-Many analytics teams work with unstructured operational text but still need structured outputs for dashboards, triage workflows, reporting, RCA support, and action prioritization.
-
-This pattern is relevant to asset management, facilities management, transport, utilities, housing, manufacturing, safety operations, and service operations where narrative text is operationally important but difficult to scale manually.
+This pattern supports operations intelligence teams that rely on unstructured text but need structured outputs for triage, reporting, and action tracking. It is relevant to aviation, transport, facilities, utilities, housing operations, manufacturing, and service operations where incident narratives are operationally significant.
 
 ## References
 
