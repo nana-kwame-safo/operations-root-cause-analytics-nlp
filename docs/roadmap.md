@@ -3,6 +3,7 @@
 This roadmap summarizes planned release increments for **Operations Root Cause Analytics with NLP**.
 
 Detailed model track and risk controls: [docs/model_roadmap.md](model_roadmap.md)
+v0.3.0 model performance plan: [docs/model_performance_plan_v0.3.0.md](model_performance_plan_v0.3.0.md)
 
 ## v0.1.0 - ASRS Text-Based MVP
 
@@ -22,10 +23,13 @@ Detailed model track and risk controls: [docs/model_roadmap.md](model_roadmap.md
 
 ## v0.3.0 - Full Dataset Model Refinement
 
-- Training on the full permitted aviation dataset snapshot
-- Probability calibration and thresholding updates for confidence-aware review behavior
-- Expanded evaluation artifacts and refreshed model card documentation
-- Improved label descriptions from broader validation evidence
+- Per-label precision, recall, F1, support, false-positive, and false-negative reporting
+- Weakest-label analysis for low-support and low-F1 categories
+- Threshold tuning across global and label-specific decision thresholds
+- Class imbalance review and controlled Logistic Regression/TF-IDF hyperparameter search
+- Probability calibration diagnostics for confidence-aware review behavior
+- Structured error analysis without committing raw narratives
+- Refreshed aviation model card with evaluation findings and promotion criteria
 
 ## v0.4.0 - Model Comparison and Transformer Baseline
 
