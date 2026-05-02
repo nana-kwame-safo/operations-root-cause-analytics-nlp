@@ -31,6 +31,16 @@ The interface supports light and dark themes for readability during analysis wor
 |---|---|
 | ![Prediction Result Dark View](docs/images/prediction_result_dark.png) | ![Prediction Result Light View](docs/images/prediction_result_light.png) |
 
+### Explainable Analyst Interface
+
+| Simple View | Analyst View |
+|---|---|
+| ![Explainable Prediction Dark View](docs/images/explainable_prediction_dark.png) | ![Analyst View Dark](docs/images/analyst_view_dark.png) |
+
+| Evidence Highlighting Dark | Evidence Highlighting Light |
+|---|---|
+| ![Evidence Highlighting Dark](docs/images/evidence_highlighting_dark.png) | ![Evidence Highlighting Light](docs/images/evidence_highlighting_light.png) |
+
 ### Batch Scoring View
 
 ![Batch Scoring Dark View](docs/images/batch_scoring_dark.png)
@@ -99,12 +109,14 @@ The explainability layer is designed for linear TF-IDF + One-vs-Rest Logistic Re
   - `contribution = tfidf_value * class_coefficient`
 - Positive contribution terms are ranked and returned as evidence terms.
 - Evidence terms are matched back to narrative spans where possible and highlighted in the UI.
+- Human-readable factor names are loaded from the aviation label registry while raw `Anomaly_*` IDs remain available for traceability.
+- Each predicted factor includes a plain-English explanation and a technical analyst explanation.
 - The UI exposes:
   - Simple View: plain-language interpretation for analyst review support
   - Analyst View: label IDs, technical interpretation, contribution scores, and alternatives
 - If coefficient extraction is unavailable for a model structure, the app falls back to token-match explanation cues.
 
-This method provides transparent, auditable indicators for analyst review support. It does not establish definitive causality.
+This method provides transparent, auditable root-cause-related factor indicators for analyst review support. It does not establish definitive causality or replace expert investigation.
 
 Detailed method notes: [docs/explainability.md](docs/explainability.md)
 
