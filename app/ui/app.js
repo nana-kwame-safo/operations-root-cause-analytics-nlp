@@ -5,14 +5,25 @@ const topKInput = document.getElementById("topKInput");
 const narrativeInput = document.getElementById("narrativeInput");
 const predictBtn = document.getElementById("predictBtn");
 const predictStatus = document.getElementById("predictStatus");
-const resultsBody = document.getElementById("resultsBody");
-const reviewBanner = document.getElementById("reviewBanner");
+
 const resultCount = document.getElementById("resultCount");
 const topScore = document.getElementById("topScore");
 const reviewFlagChip = document.getElementById("reviewFlagChip");
 const reviewFlagValue = document.getElementById("reviewFlagValue");
-const modelInfo = document.getElementById("modelInfo");
+const reviewBanner = document.getElementById("reviewBanner");
 const artifactBanner = document.getElementById("artifactBanner");
+
+const predictionSummaryText = document.getElementById("predictionSummaryText");
+const summaryPills = document.getElementById("summaryPills");
+const plainExplanationText = document.getElementById("plainExplanationText");
+const evidenceNarrative = document.getElementById("evidenceNarrative");
+const analystExplanation = document.getElementById("analystExplanation");
+const alternativesBody = document.getElementById("alternativesBody");
+const feedbackStatus = document.getElementById("feedbackStatus");
+const feedbackButtons = document.querySelectorAll(".feedback-btn");
+
+const simpleViewBtn = document.getElementById("simpleViewBtn");
+const analystViewBtn = document.getElementById("analystViewBtn");
 const themeSelect = document.getElementById("themeSelect");
 
 const batchFile = document.getElementById("batchFile");
@@ -25,31 +36,28 @@ const batchAvgLabels = document.getElementById("batchAvgLabels");
 const batchReviewCount = document.getElementById("batchReviewCount");
 const batchResultsBody = document.getElementById("batchResultsBody");
 
+const modelInfo = document.getElementById("modelInfo");
+
 const THEME_STORAGE_KEY = "orca_nlp_theme_mode";
+const RESULT_VIEW_STORAGE_KEY = "orca_nlp_result_view";
 const DEFAULT_RESULTS_MESSAGE = "No prediction results yet. Enter a narrative and run scoring.";
 const DEFAULT_BATCH_MESSAGE = "No batch results yet. Upload a CSV and run batch prediction.";
 const themeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+const urlParams = new URLSearchParams(window.location.search);
+const demoMode = (urlParams.get("demo") || "").toLowerCase();
+const forcedViewMode = (urlParams.get("mode") || "").toLowerCase();
+const forcedThemeMode = (urlParams.get("theme") || "").toLowerCase();
+
 let selectedThemeMode = "system";
+let selectedResultView = "simple";
 let lastBatchResults = [];
 let isPredicting = false;
 let isBatchRunning = false;
 
-const urlParams = new URLSearchParams(window.location.search);
-const demoMode = (urlParams.get("demo") || "").toLowerCase();
-const viewMode = (urlParams.get("view") || "").toLowerCase();
-const forcedThemeMode = (urlParams.get("theme") || "").toLowerCase();
-
 thresholdInput.addEventListener("input", () => {
   thresholdValue.textContent = Number(thresholdInput.value).toFixed(2);
 });
-
-function setViewMode() {
-  if (viewMode === "prediction") {
-    document.body.classList.add("view-prediction");
-  } else if (viewMode === "batch") {
-    document.body.classList.add("view-batch");
-  }
-}
 
 function resolveTheme(mode) {
   if (mode === "system") {
@@ -68,12 +76,12 @@ function applyTheme(mode) {
 
 function initTheme() {
   let mode = "system";
-  if (forcedThemeMode === "light" || forcedThemeMode === "dark" || forcedThemeMode === "system") {
+  if (["light", "dark", "system"].includes(forcedThemeMode)) {
     mode = forcedThemeMode;
   } else {
     try {
       const saved = localStorage.getItem(THEME_STORAGE_KEY);
-      mode = saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+      mode = ["light", "dark", "system"].includes(saved) ? saved : "system";
     } catch (_err) {
       mode = "system";
     }
@@ -85,7 +93,7 @@ function initTheme() {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch (_err) {
-      // Ignore storage errors and keep in-memory theme mode.
+      // Ignore localStorage errors.
     }
     applyTheme(next);
   });
@@ -93,6 +101,45 @@ function initTheme() {
   themeMediaQuery.addEventListener("change", () => {
     if (selectedThemeMode === "system") {
       applyTheme("system");
+    }
+  });
+}
+
+function setResultView(mode) {
+  selectedResultView = mode === "analyst" ? "analyst" : "simple";
+  document.body.dataset.resultView = selectedResultView;
+  simpleViewBtn.classList.toggle("active", selectedResultView === "simple");
+  analystViewBtn.classList.toggle("active", selectedResultView === "analyst");
+}
+
+function initResultView() {
+  let mode = "simple";
+  if (["simple", "analyst"].includes(forcedViewMode)) {
+    mode = forcedViewMode;
+  } else {
+    try {
+      const saved = localStorage.getItem(RESULT_VIEW_STORAGE_KEY);
+      mode = ["simple", "analyst"].includes(saved) ? saved : "simple";
+    } catch (_err) {
+      mode = "simple";
+    }
+  }
+
+  setResultView(mode);
+  simpleViewBtn.addEventListener("click", () => {
+    setResultView("simple");
+    try {
+      localStorage.setItem(RESULT_VIEW_STORAGE_KEY, "simple");
+    } catch (_err) {
+      // Ignore localStorage errors.
+    }
+  });
+  analystViewBtn.addEventListener("click", () => {
+    setResultView("analyst");
+    try {
+      localStorage.setItem(RESULT_VIEW_STORAGE_KEY, "analyst");
+    } catch (_err) {
+      // Ignore localStorage errors.
     }
   });
 }
@@ -131,17 +178,13 @@ function setReviewChip(value, tone = "neutral") {
 
 function setPredictStatus(text, tone = "") {
   predictStatus.classList.remove("success", "warn", "error");
-  if (tone) {
-    predictStatus.classList.add(tone);
-  }
+  if (tone) predictStatus.classList.add(tone);
   predictStatus.textContent = text;
 }
 
 function setBatchStatus(text, tone = "") {
   batchStatus.classList.remove("success", "warn", "error");
-  if (tone) {
-    batchStatus.classList.add(tone);
-  }
+  if (tone) batchStatus.classList.add(tone);
   batchStatus.textContent = text;
 }
 
@@ -161,33 +204,179 @@ function setBatchLoading(isLoading) {
   label.textContent = isLoading ? "Scoring Batch..." : "Run Batch Prediction";
 }
 
-function renderEmptyResultsRow(text) {
-  resultsBody.innerHTML = "";
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function renderAlternativesEmpty(text) {
+  alternativesBody.innerHTML = "";
   const row = document.createElement("tr");
   const cell = document.createElement("td");
   cell.colSpan = 3;
   cell.className = "empty-row";
   cell.textContent = text;
   row.appendChild(cell);
-  resultsBody.appendChild(row);
-}
-
-function renderEmptyBatchRow(text) {
-  batchResultsBody.innerHTML = "";
-  const row = document.createElement("tr");
-  const cell = document.createElement("td");
-  cell.colSpan = 4;
-  cell.className = "empty-row";
-  cell.textContent = text;
-  row.appendChild(cell);
-  batchResultsBody.appendChild(row);
+  alternativesBody.appendChild(row);
 }
 
 function resetPredictionResults(text = DEFAULT_RESULTS_MESSAGE) {
-  renderEmptyResultsRow(text);
+  predictionSummaryText.textContent = text;
+  plainExplanationText.textContent = text;
+  analystExplanation.textContent = text;
+  evidenceNarrative.textContent = text;
+  summaryPills.innerHTML = "";
+  renderAlternativesEmpty(text);
   resultCount.textContent = "0";
   topScore.textContent = "N/A";
   setReviewChip("N/A", "neutral");
+}
+
+function renderEvidenceNarrative(text, spans) {
+  if (!text) {
+    evidenceNarrative.textContent = DEFAULT_RESULTS_MESSAGE;
+    return;
+  }
+  if (!Array.isArray(spans) || !spans.length) {
+    evidenceNarrative.textContent = text;
+    return;
+  }
+
+  const sorted = spans
+    .filter((span) => Number.isInteger(span.start) && Number.isInteger(span.end) && span.start < span.end)
+    .sort((a, b) => a.start - b.start);
+
+  let cursor = 0;
+  let html = "";
+  for (const span of sorted) {
+    const start = Math.max(0, span.start);
+    const end = Math.min(text.length, span.end);
+    if (start < cursor) continue;
+    html += escapeHtml(text.slice(cursor, start));
+    const cls =
+      span.importance === "high"
+        ? "evidence-high"
+        : span.importance === "medium"
+          ? "evidence-medium"
+          : "evidence-low";
+    html += `<span class="evidence-highlight ${cls}">${escapeHtml(text.slice(start, end))}</span>`;
+    cursor = end;
+  }
+  html += escapeHtml(text.slice(cursor));
+  evidenceNarrative.innerHTML = html;
+}
+
+function formatPct(value) {
+  return `${(Number(value) * 100).toFixed(1)}%`;
+}
+
+function renderSummaryPills(items) {
+  summaryPills.innerHTML = "";
+  items.forEach((text) => {
+    const pill = document.createElement("span");
+    pill.className = "pill";
+    pill.textContent = text;
+    summaryPills.appendChild(pill);
+  });
+}
+
+function renderAnalystEvidenceTags(evidenceTerms) {
+  if (!Array.isArray(evidenceTerms) || !evidenceTerms.length) {
+    return "<p class='muted'>No evidence terms were extracted for this label.</p>";
+  }
+  const tags = evidenceTerms
+    .map((item) => {
+      const importance = item.importance || "low";
+      const contribution = Number(item.contribution || 0).toFixed(4);
+      const term = escapeHtml(item.display_term || item.term || "");
+      return `<span class="evidence-tag ${importance}"><strong>${term}</strong><span>${importance}</span><span>${contribution}</span></span>`;
+    })
+    .join("");
+  return `<div class="evidence-list">${tags}</div>`;
+}
+
+function renderAlternatives(rows) {
+  if (!Array.isArray(rows) || !rows.length) {
+    renderAlternativesEmpty(DEFAULT_RESULTS_MESSAGE);
+    return;
+  }
+  alternativesBody.innerHTML = "";
+  rows.forEach((item) => {
+    const row = document.createElement("tr");
+    const idCell = document.createElement("td");
+    idCell.textContent = item.label_id || "N/A";
+    const nameCell = document.createElement("td");
+    nameCell.textContent = item.label_name || item.label_id || "N/A";
+    const scoreCell = document.createElement("td");
+    scoreCell.textContent = `${Number(item.score_percent || item.score * 100 || 0).toFixed(1)}%`;
+    row.appendChild(idCell);
+    row.appendChild(nameCell);
+    row.appendChild(scoreCell);
+    alternativesBody.appendChild(row);
+  });
+}
+
+function renderPrediction(data, sourceText) {
+  const predictedLabels = Array.isArray(data.predicted_labels) ? data.predicted_labels : [];
+  const top = predictedLabels[0] || null;
+  const summary = data.summary || {};
+
+  resultCount.textContent = String(predictedLabels.length);
+  topScore.textContent = top ? formatPct(top.score) : "N/A";
+
+  if (!predictedLabels.length) {
+    const noneMessage =
+      "No root-cause-related factor indicators were above threshold for this narrative. Analyst review is recommended.";
+    predictionSummaryText.textContent = noneMessage;
+    plainExplanationText.textContent = noneMessage;
+    analystExplanation.textContent = noneMessage;
+    renderEvidenceNarrative(sourceText, []);
+    renderSummaryPills([`Threshold ${Number(thresholdInput.value).toFixed(2)}`]);
+    renderAlternatives(data.top_scores || []);
+    setReviewChip("Review Recommended", "review");
+    return;
+  }
+
+  const reviewFlag = Boolean(data.review_flag);
+  setReviewChip(reviewFlag ? "Review Required" : "No Review Required", reviewFlag ? "review" : "ok");
+
+  const labelName = top.label_name || top.label_id || top.label || "Unknown";
+  const labelId = top.label_id || top.label || "Unknown";
+  const summaryText = `${labelName} (${labelId}) is the leading indicator at ${formatPct(top.score)} confidence.`;
+  predictionSummaryText.textContent = summaryText;
+
+  plainExplanationText.textContent = top.plain_language_description
+    ? `${top.plain_language_description} ${top.review_guidance || ""}`.trim()
+    : "Plain-language explanation is not available for this label yet.";
+
+  const analystText = [
+    `<p><strong>${escapeHtml(labelName)}</strong> (${escapeHtml(labelId)})</p>`,
+    `<p>${escapeHtml(top.technical_description || "Technical description unavailable.")}</p>`,
+    `<p>${escapeHtml(top.operational_interpretation || "")}</p>`,
+    `<p><strong>Confidence note:</strong> ${escapeHtml(top.confidence_note || "Analyst validation required.")}</p>`,
+    `<p><strong>Explanation method:</strong> ${escapeHtml(top.explanation_method || data.model_info?.explanation_method || "unknown")}</p>`,
+    renderAnalystEvidenceTags(top.evidence_terms || []),
+  ].join("");
+  analystExplanation.innerHTML = analystText;
+
+  renderEvidenceNarrative(sourceText, top.evidence_spans || []);
+  renderAlternatives((data.top_scores && data.top_scores.length ? data.top_scores : data.all_scores || []).slice(
+    0,
+    Number(topKInput.value),
+  ));
+
+  const threshold = Number(data.threshold_used || thresholdInput.value).toFixed(2);
+  renderSummaryPills([
+    `Domain ${data.domain || domainSelect.value}`,
+    `Threshold ${threshold}`,
+    `Top Score ${formatPct(top.score)}`,
+    `Review ${reviewFlag ? "Required" : "Not required"}`,
+    summary.top_label_name ? `Top Label ${summary.top_label_name}` : `Top Label ${labelName}`,
+  ]);
 }
 
 function updateBatchStats(results) {
@@ -195,10 +384,20 @@ function updateBatchStats(results) {
   const reviewCount = results.filter((item) => item.review_flag).length;
   const totalLabels = results.reduce((sum, item) => sum + (item.predicted_labels?.length || 0), 0);
   const avgLabels = rows ? totalLabels / rows : 0;
-
   batchRows.textContent = String(rows);
   batchReviewCount.textContent = String(reviewCount);
   batchAvgLabels.textContent = avgLabels.toFixed(2);
+}
+
+function renderEmptyBatchRow(text) {
+  batchResultsBody.innerHTML = "";
+  const row = document.createElement("tr");
+  const cell = document.createElement("td");
+  cell.colSpan = 5;
+  cell.className = "empty-row";
+  cell.textContent = text;
+  row.appendChild(cell);
+  batchResultsBody.appendChild(row);
 }
 
 function renderBatchPreview(results) {
@@ -210,36 +409,65 @@ function renderBatchPreview(results) {
   batchResultsBody.innerHTML = "";
   results.forEach((rowData) => {
     const row = document.createElement("tr");
-
     const rowIndex = document.createElement("td");
     rowIndex.textContent = String(rowData.row_index);
 
-    const labels = document.createElement("td");
-    labels.textContent =
-      rowData.predicted_labels?.length
-        ? rowData.predicted_labels.map((item) => item.label).join(" | ")
-        : "No labels above threshold";
+    const ids = document.createElement("td");
+    ids.textContent = rowData.predicted_label_ids?.length
+      ? rowData.predicted_label_ids.join(" | ")
+      : rowData.predicted_labels?.map((x) => x.label_id || x.label || "N/A").join(" | ") ||
+        "No labels above threshold";
+
+    const names = document.createElement("td");
+    names.textContent = rowData.predicted_label_names?.length
+      ? rowData.predicted_label_names.join(" | ")
+      : rowData.predicted_labels?.map((x) => x.label_name || x.label_id || x.label || "N/A").join(" | ") ||
+        "No labels above threshold";
 
     const scores = document.createElement("td");
     scores.textContent =
       rowData.predicted_labels?.length
-        ? rowData.predicted_labels
-            .map((item) => `${(Number(item.score) * 100).toFixed(1)}%`)
-            .join(" | ")
+        ? rowData.predicted_labels.map((item) => `${(Number(item.score) * 100).toFixed(1)}%`).join(" | ")
         : "N/A";
 
-    const reviewFlag = document.createElement("td");
-    const reviewPill = document.createElement("span");
-    reviewPill.className = `review-pill ${rowData.review_flag ? "review-true" : "review-false"}`;
-    reviewPill.textContent = rowData.review_flag ? "Review Required" : "No Review Required";
-    reviewFlag.appendChild(reviewPill);
+    const review = document.createElement("td");
+    const pill = document.createElement("span");
+    pill.className = `review-pill ${rowData.review_flag ? "review-true" : "review-false"}`;
+    pill.textContent = rowData.review_flag ? "Review Required" : "No Review Required";
+    review.appendChild(pill);
 
     row.appendChild(rowIndex);
-    row.appendChild(labels);
+    row.appendChild(ids);
+    row.appendChild(names);
     row.appendChild(scores);
-    row.appendChild(reviewFlag);
+    row.appendChild(review);
     batchResultsBody.appendChild(row);
   });
+}
+
+function normalizeErrorMessage(detail) {
+  const raw = typeof detail === "string" ? detail : "Prediction request failed.";
+  if (raw.toLowerCase().includes("artifact")) {
+    return "Prediction is currently unavailable because the trained aviation model artifact is not loaded.";
+  }
+  if (raw.toLowerCase().includes("domain")) {
+    return "The selected domain is not implemented for prediction.";
+  }
+  return raw;
+}
+
+function normalizeBatchError(detail) {
+  const raw = typeof detail === "string" ? detail : "Batch prediction failed.";
+  if (raw.toLowerCase().includes("csv must contain text column")) {
+    return `Invalid CSV input. ${raw}`;
+  }
+  if (raw.toLowerCase().includes("utf-8")) {
+    return "CSV must be UTF-8 encoded.";
+  }
+  if (raw.toLowerCase().includes("artifact")) {
+    return "Batch prediction is unavailable because the trained aviation model artifact is not loaded.";
+  }
+  return raw;
 }
 
 async function loadDomains() {
@@ -264,79 +492,14 @@ async function loadDomains() {
   }
 }
 
-function renderResults(predictedLabels) {
-  resultsBody.innerHTML = "";
-  if (!predictedLabels.length) {
-    renderEmptyResultsRow(
-      "No root-cause-related factor indicators were above threshold for this narrative. Analyst review is recommended.",
-    );
-    resultCount.textContent = "0";
-    topScore.textContent = "N/A";
-    setReviewChip("Review Recommended", "review");
-    return;
-  }
-
-  resultCount.textContent = String(predictedLabels.length);
-  const maxScore = Math.max(...predictedLabels.map((item) => Number(item.score)));
-  topScore.textContent = `${(maxScore * 100).toFixed(1)}%`;
-
-  predictedLabels.forEach((item) => {
-    const score = Number(item.score);
-    const confidencePct = `${(score * 100).toFixed(1)}%`;
-    const confidenceClass =
-      score >= 0.75 ? "confidence-high" : score >= 0.55 ? "confidence-medium" : "confidence-low";
-    const row = document.createElement("tr");
-
-    const labelCell = document.createElement("td");
-    labelCell.textContent = item.label;
-
-    const confidenceCell = document.createElement("td");
-    const confidenceBadge = document.createElement("span");
-    confidenceBadge.className = `confidence-badge ${confidenceClass}`;
-    confidenceBadge.textContent = confidencePct;
-    confidenceCell.appendChild(confidenceBadge);
-
-    const cuesCell = document.createElement("td");
-    if (Array.isArray(item.explanation_terms) && item.explanation_terms.length) {
-      item.explanation_terms.forEach((term) => {
-        const cue = document.createElement("span");
-        cue.className = "cue-tag";
-        cue.textContent = term;
-        cuesCell.appendChild(cue);
-      });
-    } else {
-      const noCues = document.createElement("span");
-      noCues.className = "muted";
-      noCues.textContent = "No explanation cues available";
-      cuesCell.appendChild(noCues);
-    }
-
-    row.appendChild(labelCell);
-    row.appendChild(confidenceCell);
-    row.appendChild(cuesCell);
-    resultsBody.appendChild(row);
-  });
-}
-
-function normalizeErrorMessage(detail) {
-  const raw = typeof detail === "string" ? detail : "Prediction request failed.";
-  if (raw.toLowerCase().includes("artifact")) {
-    return "Prediction is currently unavailable because the trained aviation model artifact is not loaded.";
-  }
-  if (raw.toLowerCase().includes("domain")) {
-    return "The selected domain is not implemented for prediction.";
-  }
-  return raw;
-}
-
 async function runPrediction() {
   if (isPredicting) return;
 
   const narrative = narrativeInput.value.trim();
   if (!narrative) {
-    const textRequiredMessage = "Narrative text is required before scoring.";
-    setBanner(textRequiredMessage, "error");
-    setPredictStatus(textRequiredMessage, "warn");
+    const message = "Narrative text is required before scoring.";
+    setBanner(message, "error");
+    setPredictStatus(message, "warn");
     resetPredictionResults(DEFAULT_RESULTS_MESSAGE);
     return;
   }
@@ -358,7 +521,6 @@ async function runPrediction() {
       body: JSON.stringify(payload),
     });
     const data = await res.json();
-
     if (!res.ok) {
       const msg = normalizeErrorMessage(data.detail);
       setBanner(msg, "error");
@@ -368,16 +530,15 @@ async function runPrediction() {
       return;
     }
 
-    renderResults(data.predicted_labels || []);
+    renderPrediction(data, narrative);
     const tone = data.review_flag ? "review" : "ok";
-    setBanner(data.message || "Scoring completed.", tone);
+    setBanner(data.message || "Predictions generated successfully.", tone);
     setPredictStatus(
       data.review_flag
         ? "Scoring completed. Analyst review is recommended."
         : "Scoring completed. Review outputs with operational context.",
       data.review_flag ? "warn" : "success",
     );
-    setReviewChip(data.review_flag ? "Review Required" : "No Review Required", tone);
   } catch (_err) {
     const msg = "Prediction request failed. Confirm the API is running.";
     setBanner(msg, "error");
@@ -403,19 +564,29 @@ function downloadCsv(filename, rows) {
 }
 
 function buildBatchCsvRows(results) {
-  const header = ["row_index", "input_text", "predicted_labels", "scores", "review_flag", "message"];
+  const header = [
+    "row_index",
+    "input_text",
+    "predicted_label_ids",
+    "predicted_label_names",
+    "scores",
+    "review_flag",
+    "message",
+  ];
   const rows = [header.join(",")];
 
   results.forEach((row) => {
-    const labels = row.predicted_labels.map((x) => x.label).join("|");
-    const scores = row.predicted_labels.map((x) => x.score).join("|");
+    const labelIds = (row.predicted_label_ids || row.predicted_labels?.map((x) => x.label_id || x.label) || []).join("|");
+    const labelNames = (row.predicted_label_names || row.predicted_labels?.map((x) => x.label_name || x.label_id || x.label) || []).join("|");
+    const scores = (row.predicted_labels || []).map((x) => x.score).join("|");
     const safeText = (row.input_text || "").replace(/"/g, '""');
     const safeMessage = (row.message || "").replace(/"/g, '""');
     rows.push(
       [
         row.row_index,
         `"${safeText}"`,
-        `"${labels}"`,
+        `"${labelIds}"`,
+        `"${labelNames}"`,
         `"${scores}"`,
         row.review_flag,
         `"${safeMessage}"`,
@@ -423,20 +594,6 @@ function buildBatchCsvRows(results) {
     );
   });
   return rows;
-}
-
-function normalizeBatchError(detail) {
-  const raw = typeof detail === "string" ? detail : "Batch prediction failed.";
-  if (raw.toLowerCase().includes("csv must contain text column")) {
-    return `Invalid CSV input. ${raw} Check the text-column field and upload again.`;
-  }
-  if (raw.toLowerCase().includes("utf-8")) {
-    return "CSV must be UTF-8 encoded.";
-  }
-  if (raw.toLowerCase().includes("artifact")) {
-    return "Batch prediction is unavailable because the trained aviation model artifact is not loaded.";
-  }
-  return raw;
 }
 
 async function runBatch() {
@@ -448,7 +605,6 @@ async function runBatch() {
   }
 
   const textColumn = textColumnInput.value.trim() || "text";
-
   const formData = new FormData();
   formData.append("file", batchFile.files[0]);
   formData.append("domain", domainSelect.value);
@@ -462,12 +618,11 @@ async function runBatch() {
   try {
     const res = await fetch("/predict-batch", { method: "POST", body: formData });
     const data = await res.json();
-
     if (!res.ok) {
       const msg = normalizeBatchError(data.detail);
       setBatchStatus(msg, "error");
-      downloadBtn.disabled = true;
       lastBatchResults = [];
+      downloadBtn.disabled = true;
       updateBatchStats([]);
       renderBatchPreview([]);
       return;
@@ -486,8 +641,8 @@ async function runBatch() {
       "Batch request failed. Confirm the API is running and the CSV includes the expected text column.",
       "error",
     );
-    downloadBtn.disabled = true;
     lastBatchResults = [];
+    downloadBtn.disabled = true;
     updateBatchStats([]);
     renderBatchPreview([]);
   } finally {
@@ -507,7 +662,6 @@ async function loadModelInfo() {
     const res = await fetch("/model-info");
     const data = await res.json();
     modelInfo.innerHTML = "";
-
     const artifactStatus = data.artifact_status === "available" ? "available" : "missing";
     setArtifactBanner(artifactStatus);
 
@@ -532,15 +686,12 @@ async function loadModelInfo() {
     items.forEach(([key, value]) => {
       const item = document.createElement("div");
       item.className = "item";
-
       const keyEl = document.createElement("div");
       keyEl.className = "key";
       keyEl.textContent = key;
-
       const valueEl = document.createElement("div");
       valueEl.className = "value";
       valueEl.textContent = String(formatMetricValue(value));
-
       item.appendChild(keyEl);
       item.appendChild(valueEl);
       modelInfo.appendChild(item);
@@ -548,77 +699,31 @@ async function loadModelInfo() {
   } catch (_err) {
     artifactBanner.classList.remove("hidden", "ok", "review", "error", "info");
     artifactBanner.classList.add("error");
-    artifactBanner.textContent =
-      "Unable to load model metadata. Check API connectivity for artifact status.";
+    artifactBanner.textContent = "Unable to load model metadata. Check API connectivity for artifact status.";
     modelInfo.innerHTML = "<div class='item'>Unable to load model info.</div>";
   }
 }
 
-function samplePrediction() {
-  return [
-    {
-      label: "Anomaly_2",
-      score: 0.81,
-      explanation_terms: ["altitude", "approach", "clearance"],
-    },
-    {
-      label: "Anomaly_19",
-      score: 0.64,
-      explanation_terms: ["communication", "controller", "instruction"],
-    },
-    {
-      label: "Anomaly_7",
-      score: 0.58,
-      explanation_terms: ["descent", "deviation", "conflict"],
-    },
-  ];
-}
-
-function sampleBatch() {
-  return [
-    {
-      row_index: 0,
-      input_text: "Sample row 0",
-      predicted_labels: [
-        { label: "Anomaly_2", score: 0.81 },
-        { label: "Anomaly_19", score: 0.64 },
-      ],
-      review_flag: false,
-      message: "Predictions generated successfully.",
-    },
-    {
-      row_index: 1,
-      input_text: "Sample row 1",
-      predicted_labels: [{ label: "Anomaly_7", score: 0.58 }],
-      review_flag: true,
-      message: "Low-confidence assessment — manual review advised.",
-    },
-  ];
-}
-
 function applyDemoMode() {
   if (!demoMode) return;
-
   narrativeInput.value =
-    "Crew received conflicting altitude and approach instructions during descent in busy terminal airspace.";
+    "During approach, the crew received conflicting altitude instructions and descended below the assigned altitude before correcting after ATC communication.";
   thresholdInput.value = "0.5";
   thresholdValue.textContent = "0.50";
   topKInput.value = "5";
+}
 
-  if (demoMode === "prediction" || demoMode === "batch") {
-    renderResults(samplePrediction());
-    setBanner("Predictions generated successfully.", "ok");
-    setReviewChip("No Review Required", "ok");
-    setPredictStatus("Demo prediction loaded.", "success");
-  }
-
-  if (demoMode === "batch") {
-    lastBatchResults = sampleBatch();
-    updateBatchStats(lastBatchResults);
-    renderBatchPreview(lastBatchResults);
-    setBatchStatus("Processed 2 demo rows for domain 'aviation'.", "success");
-    downloadBtn.disabled = false;
-  }
+function initFeedbackPlaceholder() {
+  feedbackButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const type = button.dataset.feedback || "feedback";
+      const text = type.replaceAll("_", " ");
+      feedbackStatus.textContent =
+        `Feedback noted: ${text}. Feedback capture will be enabled in a future analyst-review workflow.`;
+      feedbackStatus.classList.remove("error");
+      feedbackStatus.classList.add("success");
+    });
+  });
 }
 
 predictBtn.addEventListener("click", runPrediction);
@@ -631,14 +736,15 @@ downloadBtn.addEventListener("click", () => {
 
 async function init() {
   initTheme();
-  setViewMode();
+  initResultView();
+  initFeedbackPlaceholder();
   resetPredictionResults(DEFAULT_RESULTS_MESSAGE);
   setPredictStatus("Ready for narrative scoring.");
   updateBatchStats([]);
   renderBatchPreview([]);
+  applyDemoMode();
   await loadDomains();
   await loadModelInfo();
-  applyDemoMode();
 }
 
 init();

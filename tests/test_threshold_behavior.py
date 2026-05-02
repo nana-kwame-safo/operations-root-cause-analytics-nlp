@@ -28,8 +28,40 @@ class FakeLoader:
 
 
 class FakeExplanationService:
+    def explain_label(self, text: str, label_index: int, bundle: LoadedModelBundle, top_n: int):
+        token = f"term_{label_index + 1}"
+        return {
+            "explanation_method": "fallback_token_match",
+            "evidence_terms": [
+                {
+                    "term": token,
+                    "display_term": token,
+                    "contribution": 0.0,
+                    "importance": "low",
+                }
+            ],
+            "evidence_spans": [],
+            "explanation_terms": [token],
+        }
+
     def explanation_terms(self, text: str, label_index: int, bundle: LoadedModelBundle, top_n: int):
         return [f"term_{label_index + 1}"]
+
+
+class FakeLabelRegistry:
+    def get_label_metadata(self, *, domain_id: str, label_id: str, label_mapping=None):
+        return {
+            "label_id": label_id,
+            "display_name": label_id,
+            "short_name": label_id,
+            "plain_language_description": "demo",
+            "technical_description": "demo",
+            "operational_interpretation": "demo",
+            "review_guidance": "demo",
+            "example_cues": [],
+            "taxonomy_status": "fallback",
+            "confidence_note": "demo",
+        }
 
 
 def make_predictor(scores):
@@ -46,6 +78,7 @@ def make_predictor(scores):
         registry=FakeRegistry(),
         loader=FakeLoader(bundle),
         explanation_service=FakeExplanationService(),
+        label_registry=FakeLabelRegistry(),
     )
 
 

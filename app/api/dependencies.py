@@ -8,6 +8,7 @@ from app.core.config import Settings, get_settings
 from app.services.batch_predictor import BatchPredictor
 from app.services.domain_registry import DomainRegistry
 from app.services.explanation import ExplanationService
+from app.services.label_registry import LabelRegistryService
 from app.services.model_loader import ModelLoader
 from app.services.predictor import Predictor
 
@@ -37,11 +38,18 @@ def get_explanation_service() -> ExplanationService:
 
 
 @lru_cache(maxsize=1)
+def get_label_registry_service() -> LabelRegistryService:
+    settings = get_settings()
+    return LabelRegistryService(settings.domains_root)
+
+
+@lru_cache(maxsize=1)
 def get_predictor() -> Predictor:
     return Predictor(
         registry=get_domain_registry(),
         loader=get_model_loader(),
         explanation_service=get_explanation_service(),
+        label_registry=get_label_registry_service(),
     )
 
 

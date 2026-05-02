@@ -44,6 +44,14 @@ class BatchPredictor:
                     "row_index": idx,
                     "input_text": text_value,
                     "predicted_labels": prediction["predicted_labels"],
+                    "predicted_label_ids": [
+                        item.get("label_id", item.get("label", ""))
+                        for item in prediction["predicted_labels"]
+                    ],
+                    "predicted_label_names": [
+                        item.get("label_name", item.get("label", ""))
+                        for item in prediction["predicted_labels"]
+                    ],
                     "review_flag": prediction["review_flag"],
                     "message": prediction["message"],
                 }

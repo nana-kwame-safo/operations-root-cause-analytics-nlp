@@ -1,51 +1,47 @@
 # Public Roadmap
 
-This roadmap summarizes planned release increments for **Operations Root Cause Analytics with NLP**.  
-Scope and timing may evolve based on contributor bandwidth, data access, and validation outcomes.
+This roadmap summarizes planned release increments for **Operations Root Cause Analytics with NLP**.
 
 ## v0.1.0 - ASRS Text-Based MVP
 
-Focus: establish the aviation baseline and analyst-support workflow.
-
 - FastAPI endpoints for health, domains, model info, single prediction, and batch prediction
-- Lightweight web UI for single narrative scoring and CSV batch scoring
-- TF-IDF + one-vs-rest logistic regression aviation demonstration baseline
-- Confidence scores, explanation cues, and review-flag output for analyst triage
-- Responsible-use framing for decision-support workflows
+- Lightweight analyst UI for narrative scoring and CSV batch workflows
+- TF-IDF + One-vs-Rest Logistic Regression aviation baseline
+- Confidence-ranked root-cause-related factor indicators with review flags
+- Responsible-use framing for analyst review support
 
-## v0.2.0 - Analytics/Dashboard Layer
+## v0.2.0 - Explainable Analyst Interface
 
-Focus: improve operational visibility and trend monitoring.
+- Human-readable label registry for aviation factor indicators
+- Simple View and Analyst View in the UI
+- Evidence-term contribution scoring and highlighted narrative spans
+- Enhanced prediction summary cards and alternative-factor analysis table
+- Feedback-capture workflow scaffolding for analyst teams
 
-- Aggregated scoring summaries for recurring factor patterns
-- Dashboard-ready exports and structured metrics views
-- Better filtering/slicing of batch results for analyst teams
-- Foundations for threshold tuning and calibration reporting
+## v0.3.0 - Full Dataset Model Refinement
 
-## v0.3.0 - Multi-Domain Expansion
+- Training on the full permitted aviation dataset snapshot
+- Updated calibration, thresholding, and confidence behavior checks
+- Expanded evaluation artifacts and refreshed model card documentation
+- Improved label descriptions from broader validation evidence
 
-Focus: extend beyond aviation while preserving domain governance.
+## v0.4.0 - Model Comparison and Transformer Baseline
 
-- Additional implemented domains through the domain registry pattern
-- Domain-specific label mappings, metadata, and validation workflows
-- Clear onboarding path for new operations datasets and schemas
-- Cross-domain reporting compatibility for downstream analytics
+- Side-by-side evaluation of linear baseline vs transformer candidate models
+- Shared evaluation harness for metrics and error-pattern analysis
+- Tradeoff documentation for performance, transparency, and operational fit
+- Recommendation package for next production-style prototype baseline
 
-## v0.4.0 - Multimodal-Ready Expansion
+## v0.5.0 - Multimodal Inputs
 
-Focus: prepare the platform for richer incident evidence types.
+- Data contracts for linking narratives with attachment references (images, PDFs, logs)
+- Pipeline updates for multimodal-ready ingestion and traceability
+- UI and API updates for evidence-link visualization
+- Responsible-use extensions for multimodal evidence interpretation
 
-- Data contracts for attachments and mixed evidence records
-- Support patterns for image/PDF/log references in scoring workflows
-- Schema updates for linking text narratives with non-text artifacts
-- Responsible-use updates for multimodal evidence handling
+## v0.6.0 - Agentic Analyst-Support Workflows
 
-## v0.5.0 - Agentic Analyst-Support Workflows
-
-Focus: human-in-the-loop analyst augmentation.
-
-- Guided triage workflows for high-volume incident queues
-- Assisted case summarization and follow-up recommendations
-- Analyst review orchestration with explicit confidence/risk signals
-- Governance controls for role-aware and auditable assistant actions
-
+- Analyst-assistant workflow orchestration for triage and follow-up
+- Structured review-state tracking and handoff prompts
+- Case summarization and investigation support scaffolding
+- Governance controls for role-aware, auditable assistant actions

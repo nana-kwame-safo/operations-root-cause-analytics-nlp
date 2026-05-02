@@ -13,6 +13,8 @@ class BatchPredictionRow(BaseModel):
     row_index: int
     input_text: str
     predicted_labels: List[PredictedLabel]
+    predicted_label_ids: List[str] = Field(default_factory=list)
+    predicted_label_names: List[str] = Field(default_factory=list)
     review_flag: bool
     message: str
 

@@ -13,7 +13,7 @@
           <div>
             <h1>Operations RCA NLP</h1>
             <p class="subtitle">
-              Natural language processing for incident narrative analysis and root cause
+              Natural language processing for incident narrative analysis and root-cause-related
               factor classification.
             </p>
           </div>
@@ -28,13 +28,13 @@
             </label>
             <div class="hero-badges">
               <span class="badge badge-domain">ASRS Aviation Demonstration</span>
-              <span class="badge badge-version">Baseline v0.1.0</span>
+              <span class="badge badge-version">Explainable Interface</span>
             </div>
           </div>
         </div>
         <p class="disclaimer">
-          Decision-support prototype only: outputs are likely root-cause-related factor
-          indicators and require analyst review before operational use.
+          Decision-support prototype: outputs are root-cause-related factor indicators for analyst
+          review support and do not establish definitive causality.
         </p>
         <div id="artifactBanner" class="banner hidden"></div>
       </header>
@@ -43,7 +43,8 @@
         <div class="panel-header">
           <h2>Single Narrative Scoring</h2>
           <p class="muted">
-            Confidence-ranked contributory-factor indicators for analyst triage.
+            Score one incident narrative to generate confidence-ranked contributory-factor
+            indicators.
           </p>
         </div>
         <div class="two-col">
@@ -78,7 +79,7 @@
               <textarea
                 id="narrativeInput"
                 rows="7"
-                placeholder="Paste an incident narrative for root-cause-related factor assessment..."
+                placeholder="Paste incident narrative text for analyst-support scoring..."
               ></textarea>
             </label>
 
@@ -99,62 +100,139 @@
             <p id="predictStatus" class="status-line muted"></p>
           </div>
           <aside class="side-note">
-            <h3>Analyst Guidance</h3>
+            <h3>Interpretation Notes</h3>
             <ul>
-              <li>Use confidence and review flags as triage support.</li>
-              <li>Low-confidence outputs should be manually reviewed.</li>
-              <li>Predictions are contributory-factor indicators, not definitive causality findings.</li>
+              <li>Use confidence and evidence cues for triage, not definitive determination.</li>
+              <li>Review-flagged cases should receive manual analyst follow-up.</li>
+              <li>Label names are draft indicators derived from model features.</li>
             </ul>
             <div class="note-chips">
               <span class="note-chip">Human-in-the-loop</span>
-              <span class="note-chip">Confidence-aware</span>
-              <span class="note-chip">Batch-ready outputs</span>
+              <span class="note-chip">Evidence-aware</span>
+              <span class="note-chip">Decision-support prototype</span>
             </div>
-            <p class="muted">
-              Planned domains include maintenance work orders, asset failure logs,
-              service disruption reports, housing repair narratives, and safety
-              near-miss reports.
-            </p>
           </aside>
         </div>
       </section>
 
       <section class="panel panel-results">
         <div class="panel-header panel-header-row">
-          <h2>Predicted Factor Indicators</h2>
-          <div class="stat-row">
-            <div class="stat-chip">
-              <span class="chip-key">Labels</span>
-              <span id="resultCount" class="chip-value">0</span>
-            </div>
-            <div class="stat-chip">
-              <span class="chip-key">Top Score</span>
-              <span id="topScore" class="chip-value">N/A</span>
-            </div>
-            <div id="reviewFlagChip" class="stat-chip chip-neutral">
-              <span class="chip-key">Review Flag</span>
-              <span id="reviewFlagValue" class="chip-value">N/A</span>
-            </div>
+          <h2>Explainable Prediction Results</h2>
+          <div class="view-toggle" role="tablist" aria-label="Result view mode">
+            <button id="simpleViewBtn" class="view-btn active" type="button">Simple View</button>
+            <button id="analystViewBtn" class="view-btn" type="button">Analyst View</button>
           </div>
         </div>
+
+        <div class="stat-row">
+          <div class="stat-chip">
+            <span class="chip-key">Predicted Labels</span>
+            <span id="resultCount" class="chip-value">0</span>
+          </div>
+          <div class="stat-chip">
+            <span class="chip-key">Top Score</span>
+            <span id="topScore" class="chip-value">N/A</span>
+          </div>
+          <div id="reviewFlagChip" class="stat-chip chip-neutral">
+            <span class="chip-key">Review Flag</span>
+            <span id="reviewFlagValue" class="chip-value">N/A</span>
+          </div>
+        </div>
+
         <div id="reviewBanner" class="banner hidden"></div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Label</th>
-                <th>Confidence</th>
-                <th>Explanation Cues</th>
-              </tr>
-            </thead>
-            <tbody id="resultsBody">
-              <tr>
-                <td colspan="3" class="empty-row">
-                  No prediction results yet. Enter a narrative and run scoring.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+        <div class="results-layout">
+          <article class="result-card">
+            <h3>Prediction Summary</h3>
+            <p id="predictionSummaryText" class="muted">
+              No prediction results yet. Enter a narrative and run scoring.
+            </p>
+            <div id="summaryPills" class="pill-row"></div>
+          </article>
+
+          <article class="result-card simple-only">
+            <h3>Plain-English Explanation</h3>
+            <div id="plainExplanationText" class="text-block">
+              No prediction results yet. Enter a narrative and run scoring.
+            </div>
+          </article>
+
+          <article class="result-card">
+            <h3>Evidence in Narrative</h3>
+            <div id="evidenceNarrative" class="narrative-panel">
+              No prediction results yet. Enter a narrative and run scoring.
+            </div>
+          </article>
+
+          <article class="result-card analyst-only">
+            <h3>Analyst Explanation</h3>
+            <div id="analystExplanation" class="text-block">
+              No prediction results yet. Enter a narrative and run scoring.
+            </div>
+          </article>
+
+          <article class="result-card analyst-only">
+            <h3>Alternative Factors (Top-K)</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Label ID</th>
+                    <th>Factor Name</th>
+                    <th>Confidence</th>
+                  </tr>
+                </thead>
+                <tbody id="alternativesBody">
+                  <tr>
+                    <td colspan="3" class="empty-row">
+                      No prediction results yet. Enter a narrative and run scoring.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="result-card">
+            <h3>Responsible-Use Reminder</h3>
+            <p class="muted">
+              These outputs are root-cause-related factor indicators for analyst review support.
+              They do not establish definitive causality and do not replace expert investigation.
+            </p>
+          </article>
+
+          <article class="result-card">
+            <h3>Feedback</h3>
+            <div class="feedback-row">
+              <button class="btn btn-secondary feedback-btn" data-feedback="useful" type="button">
+                Useful
+              </button>
+              <button
+                class="btn btn-secondary feedback-btn"
+                data-feedback="not_useful"
+                type="button"
+              >
+                Not useful
+              </button>
+              <button
+                class="btn btn-secondary feedback-btn"
+                data-feedback="needs_review"
+                type="button"
+              >
+                Needs analyst review
+              </button>
+              <button
+                class="btn btn-secondary feedback-btn"
+                data-feedback="wrong_factor"
+                type="button"
+              >
+                Wrong factor
+              </button>
+            </div>
+            <p id="feedbackStatus" class="status-line muted">
+              Feedback capture will be enabled in a future analyst-review workflow.
+            </p>
+          </article>
         </div>
       </section>
 
@@ -162,14 +240,13 @@
         <div class="panel-header">
           <h2>Batch CSV Scoring</h2>
           <p class="muted">
-            Upload a UTF-8 CSV with incident narratives to score multiple reports and
-            export structured, analyst-ready outputs.
+            Upload a UTF-8 CSV to score multiple narratives and produce analyst-ready output.
           </p>
         </div>
         <div class="batch-guidance">
           <p>
-            Required text column: <code>text</code> (or provide your column name below).
-            Each row should contain one narrative string.
+            Required text column: <code>text</code>. If your CSV uses another narrative column
+            name, set it below before running batch scoring.
           </p>
         </div>
         <div class="control-grid">
@@ -182,9 +259,8 @@
             <input id="textColumnInput" type="text" value="text" />
           </label>
         </div>
-
         <div class="actions">
-          <button id="batchBtn" class="btn btn-primary">
+          <button id="batchBtn" class="btn btn-primary" type="button">
             <span class="btn-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -198,7 +274,7 @@
             </span>
             <span>Run Batch Prediction</span>
           </button>
-          <button id="downloadBtn" class="btn btn-secondary" disabled>
+          <button id="downloadBtn" class="btn btn-secondary" type="button" disabled>
             <span class="btn-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none">
                 <path
@@ -234,15 +310,16 @@
           <table>
             <thead>
               <tr>
-                <th>Row Index</th>
-                <th>Predicted Labels</th>
+                <th>Row</th>
+                <th>Label IDs</th>
+                <th>Factor Names</th>
                 <th>Scores</th>
                 <th>Review Flag</th>
               </tr>
             </thead>
             <tbody id="batchResultsBody">
               <tr>
-                <td colspan="4" class="empty-row">
+                <td colspan="5" class="empty-row">
                   No batch results yet. Upload a CSV and run batch prediction.
                 </td>
               </tr>
@@ -254,15 +331,6 @@
       <section class="panel panel-model">
         <h2>Model Information</h2>
         <div id="modelInfo" class="info-grid"></div>
-      </section>
-
-      <section class="panel note panel-note">
-        <h2>Responsible Use</h2>
-        <p>
-          This is a decision-support prototype for human-in-the-loop analytics.
-          Outputs are contributory-factor signals and confidence-aware indicators,
-          not definitive causal findings.
-        </p>
       </section>
     </main>
     <script src="/ui/app.js"></script>

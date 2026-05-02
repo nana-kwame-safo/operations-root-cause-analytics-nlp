@@ -9,6 +9,7 @@ import numpy as np
 
 from app.services.domain_registry import DomainRegistry
 from app.services.explanation import ExplanationService
+from app.services.label_registry import LabelRegistryService
 from app.services.model_loader import LoadedModelBundle, ModelLoader
 
 
@@ -25,6 +26,7 @@ class Predictor:
     registry: DomainRegistry
     loader: ModelLoader
     explanation_service: ExplanationService
+    label_registry: LabelRegistryService
 
     def predict(
         self,
@@ -55,24 +57,67 @@ class Predictor:
         filtered = [item for item in ranked if item[2] >= threshold]
         filtered = filtered[:top_k]
         predicted_labels = [
-            {
-                "label": label,
-                "score": round(score, 4),
-                "explanation_terms": self.explanation_service.explanation_terms(
-                    text=text,
-                    label_index=idx,
-                    bundle=bundle,
-                    top_n=3,
-                ),
-            }
+            self._build_label_prediction(
+                text=text,
+                domain=domain,
+                bundle=bundle,
+                label_index=idx,
+                label_id=label,
+                score=score,
+            )
             for idx, label, score in filtered
         ]
 
+        all_scores = [
+            self._build_score_entry(
+                domain=domain,
+                bundle=bundle,
+                label_id=label,
+                score=score,
+            )
+            for _, label, score in ranked
+        ]
+        top_scores = all_scores[:top_k]
+
         review_flag, message = self._review_message(ranked, filtered, threshold)
+        top_prediction = predicted_labels[0] if predicted_labels else None
+        explanation_method = (
+            top_prediction.get("explanation_method")
+            if top_prediction
+            else "tfidf_linear_contribution"
+        )
         return {
+            "status": "ok",
             "input_text": text,
             "domain": domain,
+            "model_info": {
+                "model_name": bundle.metadata.get("model_name", "Unknown model"),
+                "threshold_used": threshold,
+                "artifact_status": bundle.artifact_status,
+                "training_approach": bundle.metadata.get(
+                    "training_approach",
+                    "TF-IDF vectorization with One-vs-Rest Logistic Regression",
+                ),
+                "explanation_method": explanation_method,
+            },
+            "summary": {
+                "predicted_count": len(predicted_labels),
+                "top_label_id": top_prediction.get("label_id") if top_prediction else None,
+                "top_label_name": top_prediction.get("label_name") if top_prediction else None,
+                "top_score": top_prediction.get("score") if top_prediction else None,
+                "top_score_percent": (
+                    top_prediction.get("score_percent") if top_prediction else None
+                ),
+                "review_flag": review_flag,
+                "review_message": message,
+            },
             "predicted_labels": predicted_labels,
+            "top_scores": top_scores,
+            "all_scores": all_scores,
+            "messages": [
+                message,
+                "Outputs are root-cause-related factor indicators for analyst review support.",
+            ],
             "threshold_used": threshold,
             "review_flag": review_flag,
             "message": message,
@@ -131,3 +176,68 @@ class Predictor:
             return True, "Low-confidence assessment — manual review advised."
 
         return False, "Predictions generated successfully."
+
+    def _build_label_prediction(
+        self,
+        *,
+        text: str,
+        domain: str,
+        bundle: LoadedModelBundle,
+        label_index: int,
+        label_id: str,
+        score: float,
+    ) -> dict[str, Any]:
+        metadata = self.label_registry.get_label_metadata(
+            domain_id=domain,
+            label_id=label_id,
+            label_mapping=bundle.label_mapping,
+        )
+        explanation = self.explanation_service.explain_label(
+            text=text,
+            label_index=label_index,
+            bundle=bundle,
+            top_n=6,
+        )
+        score_value = round(float(score), 4)
+        score_percent = round(score_value * 100, 2)
+        return {
+            "label": label_id,
+            "label_id": label_id,
+            "label_name": metadata["display_name"],
+            "short_name": metadata["short_name"],
+            "score": score_value,
+            "score_percent": score_percent,
+            "plain_language_description": metadata["plain_language_description"],
+            "technical_description": metadata["technical_description"],
+            "operational_interpretation": metadata["operational_interpretation"],
+            "review_guidance": metadata["review_guidance"],
+            "taxonomy_status": metadata["taxonomy_status"],
+            "confidence_note": metadata["confidence_note"],
+            "example_cues": metadata["example_cues"],
+            "evidence_terms": explanation["evidence_terms"],
+            "evidence_spans": explanation["evidence_spans"],
+            "explanation_terms": explanation["explanation_terms"],
+            "explanation_method": explanation["explanation_method"],
+        }
+
+    def _build_score_entry(
+        self,
+        *,
+        domain: str,
+        bundle: LoadedModelBundle,
+        label_id: str,
+        score: float,
+    ) -> dict[str, Any]:
+        metadata = self.label_registry.get_label_metadata(
+            domain_id=domain,
+            label_id=label_id,
+            label_mapping=bundle.label_mapping,
+        )
+        score_value = round(float(score), 4)
+        return {
+            "label_id": label_id,
+            "label_name": metadata["display_name"],
+            "short_name": metadata["short_name"],
+            "score": score_value,
+            "score_percent": round(score_value * 100, 2),
+        }

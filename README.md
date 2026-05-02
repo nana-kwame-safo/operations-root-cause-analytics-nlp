@@ -64,12 +64,13 @@ Operations teams generate high volumes of free-text incident narratives across s
 - Accepts free-text incident narratives
 - Applies text preprocessing and TF-IDF vectorisation
 - Predicts multi-label root-cause-related factor categories
-- Returns confidence scores and explanation cues
+- Returns confidence scores, explanation cues, and evidence-term contributions
 - Applies threshold filtering and analyst review flags
 - Supports both single narrative scoring and CSV batch scoring
 - Exposes outputs through FastAPI endpoints and a lightweight web UI
 - Includes light/dark/system theme support in the analyst UI
 - Shows model artifact availability status in the UI on load
+- Provides Simple View and Analyst View for mixed technical audiences
 
 Current positioning:
 
@@ -89,6 +90,23 @@ _Project-specific architecture from user input to analyst outputs and dashboard-
 
 ![Model Workflow Diagram](docs/images/model_workflow.png)
 _Inference workflow from incident narrative through preprocessing, classification, filtering, and structured output._
+
+## Explainable Predictions
+
+The explainability layer is designed for linear TF-IDF + One-vs-Rest Logistic Regression models.
+
+- For each predicted label, the app computes term contribution scores using:
+  - `contribution = tfidf_value * class_coefficient`
+- Positive contribution terms are ranked and returned as evidence terms.
+- Evidence terms are matched back to narrative spans where possible and highlighted in the UI.
+- The UI exposes:
+  - Simple View: plain-language interpretation for analyst review support
+  - Analyst View: label IDs, technical interpretation, contribution scores, and alternatives
+- If coefficient extraction is unavailable for a model structure, the app falls back to token-match explanation cues.
+
+This method provides transparent, auditable indicators for analyst review support. It does not establish definitive causality.
+
+Detailed method notes: [docs/explainability.md](docs/explainability.md)
 
 ## Results Summary
 
@@ -112,19 +130,78 @@ Notes:
 
 ```json
 {
+  "status": "ok",
   "input_text": "Crew received conflicting altitude and approach instructions during descent.",
   "domain": "aviation",
+  "model_info": {
+    "model_name": "TF-IDF + One-vs-Rest Logistic Regression",
+    "threshold_used": 0.5,
+    "artifact_status": "available",
+    "training_approach": "TF-IDF vectorization with One-vs-Rest Logistic Regression",
+    "explanation_method": "tfidf_linear_contribution"
+  },
+  "summary": {
+    "predicted_count": 2,
+    "top_label_id": "Anomaly_2",
+    "top_label_name": "Draft Altitude or Flight Path Deviation Indicator",
+    "top_score": 0.81,
+    "top_score_percent": 81.0,
+    "review_flag": false,
+    "review_message": "Predictions generated successfully."
+  },
   "predicted_labels": [
     {
       "label": "Anomaly_2",
+      "label_id": "Anomaly_2",
+      "label_name": "Draft Altitude or Flight Path Deviation Indicator",
+      "short_name": "Altitude Path",
       "score": 0.81,
-      "explanation_terms": ["altitude", "approach", "clearance"]
+      "score_percent": 81.0,
+      "plain_language_description": "Signals wording related to altitude assignment or flight path deviation risk.",
+      "technical_description": "Draft label tied to terms around descent, climb, altitude, and path control in the vector space.",
+      "operational_interpretation": "Prioritize review of altitude clearances, vertical profile, and correction timeline.",
+      "review_guidance": "Validate against ATC clearances, FMS settings, and deviation records.",
+      "evidence_terms": [
+        {
+          "term": "altitude",
+          "display_term": "altitude",
+          "contribution": 0.2145,
+          "importance": "high"
+        }
+      ],
+      "evidence_spans": [
+        {
+          "term": "altitude",
+          "start": 24,
+          "end": 32,
+          "importance": "high"
+        }
+      ],
+      "explanation_terms": ["altitude", "approach", "clearance"],
+      "explanation_method": "tfidf_linear_contribution"
     },
     {
       "label": "Anomaly_19",
+      "label_id": "Anomaly_19",
+      "label_name": "Draft Separation or Conflict Management Indicator",
+      "short_name": "Separation Conflict",
       "score": 0.64,
+      "score_percent": 64.0,
       "explanation_terms": ["communication", "controller", "instruction"]
     }
+  ],
+  "top_scores": [
+    {
+      "label_id": "Anomaly_2",
+      "label_name": "Draft Altitude or Flight Path Deviation Indicator",
+      "short_name": "Altitude Path",
+      "score": 0.81,
+      "score_percent": 81.0
+    }
+  ],
+  "messages": [
+    "Predictions generated successfully.",
+    "Outputs are root-cause-related factor indicators for analyst review support."
   ],
   "threshold_used": 0.5,
   "review_flag": false,
@@ -274,10 +351,11 @@ docker run -p 8000:8000 operations-root-cause-analytics-nlp
 Public roadmap: [docs/roadmap.md](docs/roadmap.md)
 
 - `v0.1.0` ASRS text-based MVP
-- `v0.2.0` analytics/dashboard layer
-- `v0.3.0` multi-domain expansion
-- `v0.4.0` multimodal-ready expansion
-- `v0.5.0` agentic analyst-support workflows
+- `v0.2.0` explainable analyst interface
+- `v0.3.0` full dataset model refinement
+- `v0.4.0` model comparison and transformer baseline
+- `v0.5.0` multimodal inputs
+- `v0.6.0` agentic analyst-support workflows
 
 Domain onboarding guide: [docs/adding_new_domain.md](docs/adding_new_domain.md)
 
