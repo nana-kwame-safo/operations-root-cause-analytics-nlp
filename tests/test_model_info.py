@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 from fastapi import HTTPException
 
@@ -22,10 +24,27 @@ def test_model_info_endpoint():
     micro_f1 = payload["evaluation_metrics"]["micro_f1"]
     assert micro_f1 is not None
     assert 0.0 <= micro_f1 <= 1.0
-    if payload["artifact_status"] == "missing":
-        # Falls back to metadata.example.json values when model artifact is absent.
-        assert micro_f1 == 0.658
     assert payload["artifact_status"] in {"missing", "available"}
+
+
+def test_model_info_endpoint_when_model_artifact_is_missing(tmp_path: Path):
+    settings = get_settings()
+    registry = DomainRegistry(settings.domains_root)
+    loader = ModelLoader(
+        registry=registry,
+        artifacts_root=tmp_path / "artifacts",
+        domains_root=settings.domains_root,
+        model_artifact_url=None,
+    )
+    payload = model_info(None, settings, registry, loader).model_dump()
+
+    assert payload["active_domain"] == "aviation"
+    assert payload["artifact_status"] == "missing"
+    assert payload["model_name"] == "TF-IDF + One-vs-Rest Logistic Regression"
+    assert payload["label_count"] == 22
+    micro_f1 = payload["evaluation_metrics"]["micro_f1"]
+    assert micro_f1 is not None
+    assert 0.0 <= micro_f1 <= 1.0
 
 
 def test_model_info_unknown_domain_returns_404():

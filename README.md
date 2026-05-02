@@ -333,6 +333,7 @@ Behavior:
 - If `artifacts/aviation/model.joblib` already exists, the app uses it directly.
 - If it is missing and `MODEL_ARTIFACT_URL` is set, the app attempts to download the artifact to `artifacts/aviation/model.joblib` on first model load.
 - If download fails, the app remains available (`/health`, `/domains`, `/model-info`, UI), and prediction endpoints continue to return model-unavailable messaging until the artifact is available.
+- CI tests intentionally run without `model.joblib`; missing artifact behavior is expected and covered by tests.
 - Raw data remains excluded from this repository (`data/raw`, `data/interim`, `data/processed` are not committed).
 
 ### Render Deployment Notes
