@@ -61,6 +61,7 @@ artifacts/**/*.ckpt
 # Notebooks
 notebooks/*.ipynb
 notebooks/**/*.ipynb
+!notebooks/01_aviation_full_dataset_eda_and_training.ipynb
 .ipynb_checkpoints/
 notebooks/.ipynb_checkpoints/
 
