@@ -349,13 +349,14 @@ docker run -p 8000:8000 operations-root-cause-analytics-nlp
 ## Roadmap
 
 Public roadmap: [docs/roadmap.md](docs/roadmap.md)
+Model-improvement roadmap: [docs/model_roadmap.md](docs/model_roadmap.md)
 
 - `v0.1.0` ASRS text-based MVP
 - `v0.2.0` explainable analyst interface
-- `v0.3.0` full dataset model refinement
-- `v0.4.0` model comparison and transformer baseline
-- `v0.5.0` multimodal inputs
-- `v0.6.0` agentic analyst-support workflows
+- `v0.3.0` full dataset retraining + probability calibration
+- `v0.4.0` transformer baseline + sentence-transformer benchmark + SHAP/LIME comparison
+- `v0.5.0` zero-shot/weak supervision expansion + similar-case retrieval + analyst feedback loop
+- `v0.6.0` multimodal extension + agentic analyst-support workflows
 
 Domain onboarding guide: [docs/adding_new_domain.md](docs/adding_new_domain.md)
 
