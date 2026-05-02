@@ -1,254 +1,165 @@
 # Operations Root Cause Analytics with NLP
 
-**Natural Language Processing for Incident Narrative Analysis and Root Cause Factor Classification**
+**Natural Language Processing for Incident Narrative Analysis and Root-Cause-Related Factor Classification**
 
-Operations RCA NLP is an operations intelligence NLP project for root-cause-related factor classification and analyst review support from free-text incident narratives.
+An applied operations-intelligence NLP system that turns free-text incident narratives into explainable factor indicators for analyst review, batch scoring, and decision-support workflows.
 
 Short name: **Operations RCA NLP**  
 Repository: **operations-root-cause-analytics-nlp**
 
-## Live Demo
+## Live Demo and Project Links
 
-Try the live app here: [Operations RCA NLP Demo](https://operations-root-cause-analytics-nlp.onrender.com/)
+| Resource | Link |
+|---|---|
+| Live demo | [Operations RCA NLP Demo](https://operations-root-cause-analytics-nlp.onrender.com/) |
+| Architecture notes | [docs/architecture.md](docs/architecture.md) |
+| Explainability method | [docs/explainability.md](docs/explainability.md) |
+| Aviation model card | [docs/model_card_aviation.md](docs/model_card_aviation.md) |
+| Visual assets guide | [docs/visuals.md](docs/visuals.md) |
+| v0.3.0 model plan | [docs/model_performance_plan_v0.3.0.md](docs/model_performance_plan_v0.3.0.md) |
 
-> This demo supports root-cause-related factor classification for analyst review. It does not establish definitive causality or replace expert investigation.
->
+> The live demo supports root-cause-related factor classification for analyst review. It does not establish definitive causality or replace expert investigation.
+
 > The live demo loads the trained aviation model artifact from Hugging Face using `MODEL_ARTIFACT_URL`, keeping the GitHub repository lightweight and free from model binaries.
 
 ## Demo Preview
 
-### Home View
-
-| Dark Theme | Light Theme |
-|---|---|
-| ![App Home Dark](docs/images/app_home_dark.png) | ![App Home Light](docs/images/app_home_light.png) |
+![Operations RCA NLP Home](docs/images/app_home_dark.png)
 
 The interface supports light and dark themes for readability during analysis workflows.
 
-### Prediction Results
-
-| Dark Theme | Light Theme |
+| Explainable Prediction | Analyst View |
 |---|---|
-| ![Prediction Result Dark View](docs/images/prediction_result_dark.png) | ![Prediction Result Light View](docs/images/prediction_result_light.png) |
+| ![Explainable Prediction](docs/images/explainable_prediction_dark.png) | ![Analyst View](docs/images/analyst_view_light.png) |
 
-### Explainable Analyst Interface
+Additional screenshots and refresh instructions are documented in [docs/visuals.md](docs/visuals.md).
 
-| Simple View | Analyst View |
-|---|---|
-| ![Explainable Prediction Dark View](docs/images/explainable_prediction_dark.png) | ![Analyst View Dark](docs/images/analyst_view_dark.png) |
+## Why This Project Matters
 
-| Evidence Highlighting Dark | Evidence Highlighting Light |
-|---|---|
-| ![Evidence Highlighting Dark](docs/images/evidence_highlighting_dark.png) | ![Evidence Highlighting Light](docs/images/evidence_highlighting_light.png) |
+Operational teams often rely on free-text incident narratives: safety reports, maintenance notes, disruption records, near-miss logs, and analyst comments. These records contain useful contributory-factor signals, but manual review is slow, inconsistent, and difficult to scale.
 
-### Batch Scoring View
+Operations RCA NLP shows how a practical analytics system can convert narrative text into structured, reviewable outputs:
 
-![Batch Scoring Dark View](docs/images/batch_scoring_dark.png)
+- faster triage for incident queues
+- confidence-ranked factor indicators for analyst review
+- batch scoring for larger report sets
+- transparent evidence cues for model interpretation
+- dashboard-ready outputs for operations intelligence workflows
 
-Additional batch screenshot variants are listed in [docs/visuals.md](docs/visuals.md).
+ASRS aviation reports are the first demonstration domain. The design is not aviation-only: the domain registry, metadata pattern, and artifact structure are intended to support future operations domains such as maintenance work orders, asset failure narratives, service disruptions, and near-miss reports.
 
-Visual asset notes and replacement instructions: [docs/visuals.md](docs/visuals.md)
+The motivation is grounded in real operational practice: ASRS shows the scale and value of narrative safety reporting, incident-investigation guidance emphasizes understanding contributing factors before recurrence prevention, and AI risk-management guidance emphasizes human oversight when model outputs support decisions. References are listed at the end of this README.
 
-## Project Background
-
-Operations teams generate high volumes of free-text incident narratives across safety logs, maintenance events, disruption reports, and near-miss records. These narratives contain contributory-factor indicators, but manual review is hard to scale consistently. This project converts narrative text into structured outputs for analyst review support and downstream operations intelligence workflows.
-
-## Why This Matters
-
-- Faster triage for analyst teams handling large incident queues
-- Better detection of recurring contributory-factor patterns
-- More consistent categorization across reviewers and time periods
-- Dashboard-ready outputs for operational reporting and action tracking
-- Practical support for root-cause-related analysis workflows
-
-## Evidence-Backed Motivation
-
-- NASA's Aviation Safety Reporting System (ASRS) has collected and analyzed over 2 million safety reports since 1976, showing the scale and value of narrative safety data. [1]
-- ASRS submissions include unsafe occurrences, near-misses, hazardous situations, and best-practice observations, making aviation a strong first demonstration domain. [1][2]
-- OSHA incident-investigation guidance emphasizes finding and correcting underlying causes to prevent recurrence. [3]
-- FAA SMS guidance describes hazard identification, risk assessment, risk analysis, and risk control as core safety risk management activities. [4]
-- NIST AI RMF 1.0 highlights role clarity and governance when AI outputs support human decision workflows. [5]
-
-## What the System Does
-
-- Accepts free-text incident narratives
-- Applies text preprocessing and TF-IDF vectorisation
-- Predicts multi-label root-cause-related factor categories
-- Returns confidence scores, explanation cues, and evidence-term contributions
-- Applies threshold filtering and analyst review flags
-- Supports both single narrative scoring and CSV batch scoring
-- Exposes outputs through FastAPI endpoints and a lightweight web UI
-- Includes light/dark/system theme support in the analyst UI
-- Shows model artifact availability status in the UI on load
-- Provides Simple View and Analyst View for mixed technical audiences
-
-Current positioning:
-
-- ASRS aviation incident reports are the first implemented demonstration domain
-- The platform is not aviation-only and is designed for multi-domain onboarding
-- The MVP is text-based now
-- The architecture is multi-domain-ready
-- The roadmap is multimodal-ready later
-- Agentic analyst-support workflows are planned as a future direction
-
-## System Architecture Diagram
+## System Architecture
 
 ![Architecture Diagram](docs/images/architecture.png)
-_Project-specific architecture from user input to analyst outputs and dashboard-ready results._
 
-## Model Workflow Diagram
+The app is a lightweight FastAPI system with a static analyst UI. The model artifact is intentionally kept out of GitHub and loaded from external storage in deployment.
+
+## End-to-End Workflow
 
 ![Model Workflow Diagram](docs/images/model_workflow.png)
-_Inference workflow from incident narrative through preprocessing, classification, filtering, and structured output._
 
-## Explainable Predictions
+```text
+Incident narrative
+-> preprocessing / TF-IDF vectorization
+-> One-vs-Rest Logistic Regression
+-> confidence scores and threshold filtering
+-> evidence-term contribution scoring
+-> Simple View / Analyst View / batch CSV output
+-> analyst review support
+```
 
-The explainability layer is designed for linear TF-IDF + One-vs-Rest Logistic Regression models.
+## Key Features
 
-- For each predicted label, the app computes term contribution scores using:
-  - `contribution = tfidf_value * class_coefficient`
-- Positive contribution terms are ranked and returned as evidence terms.
-- Evidence terms are matched back to narrative spans where possible and highlighted in the UI.
-- Human-readable factor names are loaded from the aviation label registry while raw `Anomaly_*` IDs remain available for traceability.
-- Each predicted factor includes a plain-English explanation and a technical analyst explanation.
-- The UI exposes:
-  - Simple View: plain-language interpretation for analyst review support
-  - Analyst View: label IDs, technical interpretation, contribution scores, and alternatives
-- If coefficient extraction is unavailable for a model structure, the app falls back to token-match explanation cues.
+| Feature | Practical value |
+|---|---|
+| Single narrative scoring | Lets an analyst score one incident report and review factor indicators immediately. |
+| Batch CSV scoring | Processes multiple narratives into structured outputs for reporting or downstream analytics. |
+| Confidence-aware predictions | Uses scores and thresholds to support triage decisions and review prioritization. |
+| Human-readable factor names | Converts raw `Anomaly_*` model labels into draft working labels for easier interpretation. |
+| Explainability cues | Shows evidence terms and highlighted narrative spans so users can inspect why a label was suggested. |
+| Simple View and Analyst View | Supports both non-technical review and technical model inspection. |
+| External artifact loading | Keeps `model.joblib` out of GitHub while allowing Render to load the trained model through `MODEL_ARTIFACT_URL`. |
+| Multi-domain-ready structure | Uses domain configs, label registries, and metadata files to support future operational domains. |
 
-This method provides transparent, auditable root-cause-related factor indicators for analyst review support. It does not establish definitive causality or replace expert investigation.
+## Methodology
 
-Detailed method notes: [docs/explainability.md](docs/explainability.md)
+### Data and Domain
 
-## Results Summary
+- First demonstration domain: aviation incident narratives from a local frozen NASA ASRS/SIAM 2007 benchmark snapshot.
+- Public repository policy: raw narratives and source data are not committed.
+- Label space: `Anomaly_1` through `Anomaly_22`, surfaced through a draft human-readable label registry.
+
+### Model
+
+The current deployed baseline is intentionally interpretable:
+
+- **Vectorizer**: TF-IDF
+  - `ngram_range=(1, 2)`
+  - `max_features=30000`
+  - `min_df=2`
+  - `strip_accents="unicode"`
+  - `sublinear_tf=True`
+- **Classifier**: One-vs-Rest Logistic Regression
+  - `C=2.0`
+  - `max_iter=400`
+  - `class_weight="balanced"`
+  - `solver="liblinear"`
+  - `random_state=42`
+- **Threshold**: `0.50`
+
+This approach is fast, deployable, and transparent enough for coefficient-based explanations. It is a strong baseline before heavier transformer or retrieval-based methods are introduced.
+
+### Evaluation
+
+The v0.2.0 live artifact is trained on the full local aviation dataset snapshot and hosted externally on Hugging Face. Current aggregate metrics:
+
+| Metric | Value | Interpretation |
+|---|---:|---|
+| Micro-F1 | 0.7175 | Overall label-level precision/recall balance across all predictions. |
+| Macro-F1 | 0.6414 | Average label performance; lower than micro-F1, indicating weaker minority-label behavior. |
+| Samples-F1 | 0.7194 | Per-sample multi-label prediction quality. |
+| Hamming loss | 0.0620 | Per-label error rate; lower is better. |
 
 ![Metrics Summary](docs/images/metrics_summary.png)
-_Aviation demonstration metrics overview._
 
-| Metric | Value |
-|---|---:|
-| Micro-F1 | 0.658 |
-| Macro-F1 | 0.630 |
-| Samples-F1 | 0.654 |
-| Hamming Loss | 0.073 |
+These metrics are useful for baseline comparison, not proof of operational readiness. v0.3.0 focuses on per-label metrics, weakest-label analysis, threshold tuning, calibration checks, and error analysis.
 
-Notes:
+## Explainability and Decision Support
 
-- Metrics are from the aviation demonstration domain baseline.
-- New domains require domain-specific retraining and validation.
-- Detailed context: [docs/model_card_aviation.md](docs/model_card_aviation.md)
+The model uses a linear explanation method:
 
-## Example Output
-
-```json
-{
-  "status": "ok",
-  "input_text": "Crew received conflicting altitude and approach instructions during descent.",
-  "domain": "aviation",
-  "model_info": {
-    "model_name": "TF-IDF + One-vs-Rest Logistic Regression",
-    "threshold_used": 0.5,
-    "artifact_status": "available",
-    "training_approach": "TF-IDF vectorization with One-vs-Rest Logistic Regression",
-    "explanation_method": "tfidf_linear_contribution"
-  },
-  "summary": {
-    "predicted_count": 2,
-    "top_label_id": "Anomaly_2",
-    "top_label_name": "Draft Altitude or Flight Path Deviation Indicator",
-    "top_score": 0.81,
-    "top_score_percent": 81.0,
-    "review_flag": false,
-    "review_message": "Predictions generated successfully."
-  },
-  "predicted_labels": [
-    {
-      "label": "Anomaly_2",
-      "label_id": "Anomaly_2",
-      "label_name": "Draft Altitude or Flight Path Deviation Indicator",
-      "short_name": "Altitude Path",
-      "score": 0.81,
-      "score_percent": 81.0,
-      "plain_language_description": "Signals wording related to altitude assignment or flight path deviation risk.",
-      "technical_description": "Draft label tied to terms around descent, climb, altitude, and path control in the vector space.",
-      "operational_interpretation": "Prioritize review of altitude clearances, vertical profile, and correction timeline.",
-      "review_guidance": "Validate against ATC clearances, FMS settings, and deviation records.",
-      "evidence_terms": [
-        {
-          "term": "altitude",
-          "display_term": "altitude",
-          "contribution": 0.2145,
-          "importance": "high"
-        }
-      ],
-      "evidence_spans": [
-        {
-          "term": "altitude",
-          "start": 24,
-          "end": 32,
-          "importance": "high"
-        }
-      ],
-      "explanation_terms": ["altitude", "approach", "clearance"],
-      "explanation_method": "tfidf_linear_contribution"
-    },
-    {
-      "label": "Anomaly_19",
-      "label_id": "Anomaly_19",
-      "label_name": "Draft Separation or Conflict Management Indicator",
-      "short_name": "Separation Conflict",
-      "score": 0.64,
-      "score_percent": 64.0,
-      "explanation_terms": ["communication", "controller", "instruction"]
-    }
-  ],
-  "top_scores": [
-    {
-      "label_id": "Anomaly_2",
-      "label_name": "Draft Altitude or Flight Path Deviation Indicator",
-      "short_name": "Altitude Path",
-      "score": 0.81,
-      "score_percent": 81.0
-    }
-  ],
-  "messages": [
-    "Predictions generated successfully.",
-    "Outputs are root-cause-related factor indicators for analyst review support."
-  ],
-  "threshold_used": 0.5,
-  "review_flag": false,
-  "message": "Predictions generated successfully."
-}
+```text
+contribution = TF-IDF value x logistic regression coefficient
 ```
 
-The output is a confidence-ranked set of contributory-factor indicators for analyst review support, not definitive causality findings.
+For each predicted label, the system ranks positive feature contributions, maps evidence terms back to the original narrative where possible, and highlights those spans in the UI.
 
-## API Endpoints
+![Evidence Highlighting](docs/images/evidence_highlighting_dark.png)
 
-- `GET /health`
-- `GET /domains`
-- `GET /model-info`
-- `POST /predict`
-- `POST /predict-batch`
+How to interpret outputs:
 
-### cURL Examples
+- Treat predictions as root-cause-related factor indicators.
+- Use confidence scores and review flags as triage support.
+- Inspect evidence terms and highlighted text before accepting a result.
+- Keep raw `Anomaly_*` IDs for technical traceability.
+- Do not treat outputs as causal proof or automated investigation findings.
 
-`GET /health`
-```bash
-curl -X GET "http://127.0.0.1:8000/health"
-```
+Detailed explanation notes: [docs/explainability.md](docs/explainability.md)
 
-`GET /domains`
-```bash
-curl -X GET "http://127.0.0.1:8000/domains"
-```
+## API Overview
 
-`GET /model-info`
-```bash
-curl -X GET "http://127.0.0.1:8000/model-info"
-```
+| Endpoint | Purpose |
+|---|---|
+| `GET /health` | Service health and active app metadata |
+| `GET /domains` | Implemented and planned domain registry |
+| `GET /model-info` | Model metadata, metrics, threshold, and artifact status |
+| `POST /predict` | Single narrative prediction with explanations |
+| `POST /predict-batch` | CSV batch scoring |
 
-`POST /predict`
+Example request:
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/predict" \
   -H "Content-Type: application/json" \
@@ -260,45 +171,106 @@ curl -X POST "http://127.0.0.1:8000/predict" \
   }'
 ```
 
-`POST /predict-batch`
-```bash
-curl -X POST "http://127.0.0.1:8000/predict-batch" \
-  -F "file=@sample_inputs/aviation_batch_reports.csv" \
-  -F "domain=aviation" \
-  -F "threshold=0.5" \
-  -F "top_k=5" \
-  -F "text_column=text"
+Example response shape:
+
+```json
+{
+  "status": "ok",
+  "domain": "aviation",
+  "summary": {
+    "predicted_count": 2,
+    "top_label_id": "Anomaly_2",
+    "top_label_name": "Draft Assigned Altitude/Clearance Deviation Indicator",
+    "top_score": 0.81,
+    "review_flag": false
+  },
+  "predicted_labels": [
+    {
+      "label_id": "Anomaly_2",
+      "label_name": "Draft Assigned Altitude/Clearance Deviation Indicator",
+      "score": 0.81,
+      "plain_language_description": "Signals potential deviation from assigned altitude or clearance execution.",
+      "evidence_terms": [
+        {
+          "term": "altitude",
+          "contribution": 0.2145,
+          "importance": "high"
+        }
+      ],
+      "evidence_spans": [
+        {
+          "term": "altitude",
+          "start": 24,
+          "end": 32,
+          "importance": "high"
+        }
+      ]
+    }
+  ],
+  "message": "Predictions generated successfully."
+}
+```
+
+## Repository Structure
+
+```text
+operations-root-cause-analytics-nlp/
+  app/
+    api/              FastAPI routes and dependency wiring
+    domains/          domain configs, label registry, metadata templates
+    schemas/          typed request/response models
+    services/         model loading, prediction, batch scoring, explainability
+    ui/               lightweight HTML/CSS/JS analyst interface
+  artifacts/          local artifact metadata/examples; model binaries ignored
+  docs/               architecture, model card, roadmap, visuals, responsible use
+  sample_inputs/      safe sample CSV inputs
+  scripts/            training, evaluation, artifact export, visual generation
+  tests/              pytest suite
+  Dockerfile
+  render.yaml
+  README.md
 ```
 
 ## Local Setup
 
 ```bash
+git clone https://github.com/nana-kwame-safo/operations-root-cause-analytics-nlp.git
+cd operations-root-cause-analytics-nlp
+
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+
 uvicorn app.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000` in your browser.
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+Run tests:
+
+```bash
+pytest -q
+```
 
 ## Artifact Generation
 
-The public repository does not include raw datasets or `model.joblib`. Generate artifacts locally from your permitted dataset copy.
+The public repo does not include raw data or `model.joblib`. Generate artifacts locally from your permitted dataset copy.
 
-Single-CSV workflow:
+Single CSV workflow:
+
 ```bash
 python scripts/train_aviation.py \
   --input-csv <local_labeled_data.csv> \
   --text-column text \
   --output-dir artifacts/aviation
-
-python scripts/evaluate_aviation.py \
-  --input-csv <local_labeled_data.csv> \
-  --text-column text \
-  --artifact-path artifacts/aviation/model.joblib
 ```
 
-Split-file workflow (`TrainingData.txt` + `TrainCategoryMatrix.csv`):
+Split-file workflow:
+
 ```bash
 python scripts/export_aviation_artifacts.py \
   --train-text data/raw/TrainingData.txt \
@@ -306,76 +278,97 @@ python scripts/export_aviation_artifacts.py \
   --output-dir artifacts/aviation
 ```
 
-Copy pre-generated artifacts from another local folder:
+Evaluate an artifact:
+
 ```bash
-python scripts/export_aviation_artifacts.py \
-  --source-dir <artifact_source_dir> \
-  --output-dir artifacts/aviation
+python scripts/evaluate_aviation.py \
+  --input-csv <local_labeled_data.csv> \
+  --text-column text \
+  --artifact-path artifacts/aviation/model.joblib
 ```
 
 Expected runtime files:
 
-- `artifacts/aviation/model.joblib` (required for live predictions)
-- `artifacts/aviation/metadata.json` (recommended)
-- `artifacts/aviation/label_mapping.json` (optional)
+- `artifacts/aviation/model.joblib`
+- `artifacts/aviation/metadata.json`
+- `artifacts/aviation/label_mapping.json`
 
-## Model Artifact Handling
+## Deployment and Artifact Handling
 
-`model.joblib` is intentionally not committed to this public repository.
+The live app is deployed on Render:
 
-For deployment environments (including Render), you can provide an external artifact URL through:
+```text
+https://operations-root-cause-analytics-nlp.onrender.com/
+```
 
-- `MODEL_ARTIFACT_URL`
-- `MODEL_ARTIFACT_PATH` (optional, defaults to `artifacts/aviation/model.joblib`)
+Render configuration:
 
-Behavior:
+```text
+Build Command: pip install -r requirements.txt
+Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+PYTHON_VERSION=3.11.9
+MODEL_ARTIFACT_URL=<direct HTTPS URL to model.joblib>
+MODEL_ARTIFACT_PATH=artifacts/aviation/model.joblib
+```
 
-- If `artifacts/aviation/model.joblib` already exists, the app uses it directly.
-- If it is missing and `MODEL_ARTIFACT_URL` is set, the app attempts to download the artifact to `artifacts/aviation/model.joblib` on first model load.
-- If download fails, the app remains available (`/health`, `/domains`, `/model-info`, UI), and prediction endpoints continue to return model-unavailable messaging until the artifact is available.
-- CI tests intentionally run without `model.joblib`; missing artifact behavior is expected and covered by tests.
-- Raw data remains excluded from this repository (`data/raw`, `data/interim`, `data/processed` are not committed).
+Artifact policy:
 
-### Render Deployment Notes
+- `model.joblib` is hosted externally on Hugging Face and loaded with `MODEL_ARTIFACT_URL`.
+- `model.joblib` is not committed to GitHub.
+- raw data under `data/raw/`, `data/interim/`, and `data/processed/` is excluded.
+- CI tests intentionally run without the real model artifact and validate graceful missing-artifact behavior.
 
-Set these environment variables in Render:
-
-- `PYTHON_VERSION=3.11.9`
-- `MODEL_ARTIFACT_URL=<https URL to your model.joblib>`
-- `MODEL_ARTIFACT_PATH=artifacts/aviation/model.joblib` (optional override)
-
-## Docker
+Docker:
 
 ```bash
 docker build -t operations-root-cause-analytics-nlp .
 docker run -p 8000:8000 operations-root-cause-analytics-nlp
 ```
 
-## Responsible Use
+## Limitations
 
-- Decision-support system for analyst review workflows
-- Not a source of definitive causality findings
-- Not a replacement for expert investigation workflows
-- Human review remains required
-- Not certified as a production safety-critical decision system
+- The aviation label names are draft working labels derived from model features and require domain review.
+- Metrics are aggregate baseline metrics; v0.3.0 will add per-label and calibration analysis.
+- TF-IDF models are sensitive to vocabulary shift and reporting-style variation.
+- Evidence highlights explain model behavior, not causal truth.
+- New operational domains require domain-specific labels, validation, and retraining.
+- This is not a certified safety-critical decision system.
 
 ## Roadmap
 
-Public roadmap: [docs/roadmap.md](docs/roadmap.md)
-Model-improvement roadmap: [docs/model_roadmap.md](docs/model_roadmap.md)
+| Release | Focus |
+|---|---|
+| `v0.1.0` | ASRS text-based MVP with FastAPI, UI, single prediction, and batch scoring |
+| `v0.2.0` | Explainable analyst interface with label registry, evidence highlighting, and richer API schema |
+| `v0.3.0` | Model performance improvement: per-label metrics, threshold tuning, calibration, weakest-label analysis |
+| `v0.4.0` | Transformer and sentence-transformer baselines with explainability comparison |
+| `v0.5.0` | Similar-case retrieval, weak supervision, and analyst feedback loop |
+| `v0.6.0` | Multimodal-ready and agentic analyst-support workflows |
 
-- `v0.1.0` ASRS text-based MVP
-- `v0.2.0` explainable analyst interface
-- `v0.3.0` full dataset retraining + probability calibration
-- `v0.4.0` transformer baseline + sentence-transformer benchmark + SHAP/LIME comparison
-- `v0.5.0` zero-shot/weak supervision expansion + similar-case retrieval + analyst feedback loop
-- `v0.6.0` multimodal extension + agentic analyst-support workflows
+See [docs/roadmap.md](docs/roadmap.md) and [docs/model_roadmap.md](docs/model_roadmap.md).
 
-Domain onboarding guide: [docs/adding_new_domain.md](docs/adding_new_domain.md)
+## Skills Demonstrated
 
-## Analytics Industry Relevance
+- Python application engineering
+- FastAPI API design
+- NLP preprocessing and TF-IDF modeling
+- Multi-label classification
+- Logistic Regression and threshold-based prediction
+- Model evaluation and model-card documentation
+- Explainability for linear text models
+- Lightweight frontend development with HTML/CSS/JS
+- Docker and Render deployment
+- External model artifact handling
+- Responsible AI documentation
+- Operations analytics and decision-support framing
 
-This pattern supports operations intelligence teams that rely on unstructured text but need structured outputs for triage, reporting, and action tracking. It is relevant to aviation, transport, facilities, utilities, housing operations, manufacturing, and service operations where incident narratives are operationally significant.
+## Responsible Use
+
+Operations RCA NLP is a decision-support prototype. It supports analyst review by surfacing factor indicators, confidence scores, and evidence cues. It should not be used blindly for high-stakes decisions, and it does not replace expert investigation, domain review, or operational governance.
+
+## License
+
+This project is released under the [MIT License](LICENSE).
 
 ## References
 

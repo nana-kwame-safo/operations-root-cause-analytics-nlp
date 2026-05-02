@@ -43,13 +43,15 @@
 - Multi-label anomaly-factor output
 - Confidence scoring per predicted label
 - Threshold-aware review flags
-- Explainability-lite cue terms derived from linear feature contributions
+- Evidence-term explanations derived from TF-IDF feature contributions and linear model coefficients
 
 ## Labels
 
 - Label count: `22`
 - Label set: `Anomaly_1` through `Anomaly_22`
-- Domain mappings: `app/domains/aviation/label_mapping.json`
+- Artifact label mapping: `artifacts/aviation/label_mapping.json`
+- Human-readable label registry: `app/domains/aviation/label_registry.json`
+- Label display names are interpretive working labels and should be validated through domain review before operational use.
 
 ## Threshold
 
@@ -60,10 +62,12 @@
 
 ## Metrics
 
-- Micro-F1: `0.658`
-- Macro-F1: `0.630`
-- Samples-F1: `0.654`
-- Hamming Loss: `0.073`
+- Micro-F1: `0.7175`
+- Macro-F1: `0.6414`
+- Samples-F1: `0.7194`
+- Hamming Loss: `0.0620`
+
+These aggregate metrics reflect the current full-dataset aviation baseline artifact. They are useful for model comparison and release tracking, but they do not establish operational readiness on their own.
 
 ## Known Limitations
 

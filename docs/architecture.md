@@ -5,10 +5,10 @@ Provide a modular NLP operations intelligence prototype where aviation is the fi
 
 ## Components
 - `app/api`: HTTP routes and dependency wiring
-- `app/services`: domain registry, model loading, prediction, batch scoring, explainability-lite
+- `app/services`: domain registry, model loading, prediction, batch scoring, artifact download, and explainability
 - `app/schemas`: typed request/response contracts
-- `app/domains`: per-domain configuration and label metadata
-- `artifacts`: local model artifacts (not committed except examples/placeholders)
+- `app/domains`: per-domain configuration, label registry, and metadata templates
+- `artifacts`: local artifact metadata/examples; model binaries are ignored
 - `app/ui`: lightweight analyst-facing interface served by FastAPI
 
 ## Request Flow
@@ -16,8 +16,8 @@ Provide a modular NLP operations intelligence prototype where aviation is the fi
 2. Domain registry validates implemented domain availability.
 3. Model loader resolves artifact and metadata paths by domain.
 4. Predictor runs multi-label inference with thresholding and top-k filtering.
-5. Explanation service returns transparent cue terms from TF-IDF + linear coefficients.
-6. API returns confidence-aware factor indicators with analyst review flags.
+5. Explanation service returns evidence terms and matched narrative spans from TF-IDF feature values and linear model coefficients.
+6. API returns human-readable label metadata, raw label IDs, confidence scores, evidence terms, evidence spans, and analyst review flags.
 
 ## Domain Extensibility Pattern
 To add a new domain:

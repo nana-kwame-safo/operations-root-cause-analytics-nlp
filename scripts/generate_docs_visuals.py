@@ -361,7 +361,7 @@ def make_metrics(path: Path) -> None:
     draw.text((130, 220), "F1 Scores", font=F_CARD_TITLE, fill=TEXT)
 
     labels = ["Micro-F1", "Macro-F1", "Samples-F1"]
-    values = [0.658, 0.630, 0.654]
+    values = [0.7175, 0.6414, 0.7194]
     colors = ["#1b7f77", "#2f65d4", "#6f42d8"]
     base_x = 130
     y_top = 640
@@ -391,7 +391,7 @@ def make_metrics(path: Path) -> None:
 
     draw.rounded_rectangle((1040, 230, 1490, 640), radius=16, fill="#fff7ef", outline="#e8c495", width=2)
     draw.text((1080, 280), "Hamming Loss", font=F_CARD_TITLE, fill="#85410a")
-    draw.text((1080, 360), "0.073", font=_font(64, bold=True), fill="#162238")
+    draw.text((1080, 360), "0.0620", font=_font(64, bold=True), fill="#162238")
     _draw_multiline(
         draw,
         "Lower is better. Indicates low per-label error in this aviation demo baseline.",
@@ -405,7 +405,7 @@ def make_metrics(path: Path) -> None:
     draw.rounded_rectangle((90, 790, WIDTH - 90, 850), radius=12, fill="#ffffff", outline=BORDER, width=2)
     draw.text(
         (120, 808),
-        "Metrics: Micro-F1 0.658 | Macro-F1 0.630 | Samples-F1 0.654 | Hamming Loss 0.073",
+        "Metrics: Micro-F1 0.7175 | Macro-F1 0.6414 | Samples-F1 0.7194 | Hamming Loss 0.0620",
         font=F_TINY,
         fill="#415978",
     )

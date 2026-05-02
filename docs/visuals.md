@@ -24,7 +24,7 @@ This file documents what each public visual shows, how it was produced, and how 
 | `docs/images/batch_scoring.png` | Previous batch screenshot retained for compatibility | Live UI screenshot | Legacy snapshot |
 | `docs/images/architecture.png` | End-to-end project architecture (UI -> API -> services -> artifacts -> outputs) | Generated diagram | Release-ready |
 | `docs/images/model_workflow.png` | NLP inference workflow from narrative text to structured output | Generated diagram | Release-ready |
-| `docs/images/metrics_summary.png` | Aviation baseline metrics (Micro-F1, Macro-F1, Samples-F1, Hamming Loss) | Generated chart | Release-ready |
+| `docs/images/metrics_summary.png` | Current aviation baseline metrics: Micro-F1 0.7175, Macro-F1 0.6414, Samples-F1 0.7194, Hamming Loss 0.0620 | Generated chart | Release-ready |
 
 The following optional screenshot is not currently present in this repository:
 
