@@ -74,7 +74,7 @@ def test_label_registry_loading() -> None:
     metadata = service.get_label_metadata(domain_id="aviation", label_id="Anomaly_1")
     assert metadata["label_id"] == "Anomaly_1"
     assert metadata["display_name"]
-    assert metadata["taxonomy_status"] == "draft_from_model_features"
+    assert metadata["taxonomy_status"] == "draft_from_model_features_pending_domain_review"
 
 
 def test_label_registry_fallback_for_unknown_label() -> None:
